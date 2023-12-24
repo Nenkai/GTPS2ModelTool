@@ -3,11 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTPS2ModelTool.ModelSetMaker", "GTPS2ModelTool\GTPS2ModelTool.ModelSetMaker.csproj", "{09D24FEB-8DFB-4EC2-9892-6B1D6D241C2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTPS2ModelTool", "GTPS2ModelTool\GTPS2ModelTool.csproj", "{09D24FEB-8DFB-4EC2-9892-6B1D6D241C2E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpTriStrip", "SharpTriStrip\SharpTriStrip.csproj", "{4AC4923D-8AC4-4F6C-8DC6-1F50FC8D2F80}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTPS2ModelTool.Core", "GTPS2ModelTool.Core\GTPS2ModelTool.Core.csproj", "{04257E99-E3F7-4DAC-8560-2816094F9100}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PDTools.Files", "PDTools\PDTools.Files\PDTools.Files.csproj", "{CEDAB84A-09AA-49C3-9781-AEBD82C8A39C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PDTools.Hashing", "PDTools\PDTools.Hashing\PDTools.Hashing.csproj", "{F3DDF5FB-53B9-4893-89F4-66E3BAAFE9F1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PDTools.Utils", "PDTools\PDTools.Utils\PDTools.Utils.csproj", "{7019C0E6-8482-4E13-BAEB-D5960E060FC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +33,18 @@ Global
 		{04257E99-E3F7-4DAC-8560-2816094F9100}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04257E99-E3F7-4DAC-8560-2816094F9100}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04257E99-E3F7-4DAC-8560-2816094F9100}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEDAB84A-09AA-49C3-9781-AEBD82C8A39C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEDAB84A-09AA-49C3-9781-AEBD82C8A39C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEDAB84A-09AA-49C3-9781-AEBD82C8A39C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEDAB84A-09AA-49C3-9781-AEBD82C8A39C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3DDF5FB-53B9-4893-89F4-66E3BAAFE9F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3DDF5FB-53B9-4893-89F4-66E3BAAFE9F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3DDF5FB-53B9-4893-89F4-66E3BAAFE9F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3DDF5FB-53B9-4893-89F4-66E3BAAFE9F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7019C0E6-8482-4E13-BAEB-D5960E060FC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7019C0E6-8482-4E13-BAEB-D5960E060FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7019C0E6-8482-4E13-BAEB-D5960E060FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7019C0E6-8482-4E13-BAEB-D5960E060FC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

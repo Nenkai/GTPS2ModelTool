@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PDTools\PDTools.Files\PDTools.Files.csproj" />
     <ProjectReference Include="..\SharpTriStrip\SharpTriStrip.csproj" />
   </ItemGroup>
 

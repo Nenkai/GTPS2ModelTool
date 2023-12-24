@@ -12,7 +12,7 @@ using PDTools.Files.Models.PS2.ModelSet;
 using GTPS2ModelTool.Core;
 using GTPS2ModelTool.Core.Config;
 
-namespace GTPS2ModelTool.ModelSetMaker
+namespace GTPS2ModelTool
 {
     internal class Program
     {
@@ -21,30 +21,12 @@ namespace GTPS2ModelTool.ModelSetMaker
         static void Main(string[] args)
         {
             Logger.Info("-----------------------------------------");
-            Logger.Info("- GTPS2ModelTool.ModelSetMaker by Nenkai");
+            Logger.Info("- GTPS2ModelTool by Nenkai");
             Logger.Info("-----------------------------------------");
             Logger.Info("- https://github.com/Nenkai");
             Logger.Info("- https://nenkai.github.io/gt-modding-hub/");
             Logger.Info("-----------------------------------------");
             Logger.Info("");
-
-            /*
-            foreach (var file in Directory.GetFiles("D:\\Modding_Research\\Gran_Turismo\\Gran_Turismo_3\\data\\cars\\day"))
-            {
-                try
-                {
-                    var model = new CarModel1();
-
-                    Console.WriteLine(Path.GetFileNameWithoutExtension(file));
-                    using var fs = new FileStream(file, FileMode.Open);
-                    model.FromStream(fs);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"fail: {file}, {e.Message}");
-                }
-            }
-            */
 
 
             var p = Parser.Default.ParseArguments<MakeCarModelVerbs, MakeModelSet1Verbs, MakeModelSet2Verbs, MakeTireVerbs, MakeWheelVerbs, DumpVerbs, SplitCarModelVerbs>(args)
@@ -621,6 +603,7 @@ namespace GTPS2ModelTool.ModelSetMaker
             public string OutputPath { get; set; }
         }
 
+        /*
         [Verb("make-model-set2", HelpText = "Makes a ModelSet2 (MDLS) file (GT4/TT).")]
         public class MakeModelSet2Verbs
         {
@@ -629,7 +612,7 @@ namespace GTPS2ModelTool.ModelSetMaker
 
             [Option('o', "output", HelpText = "Output file. Optional, defaults to <file_name>.mdl if not provided.")]
             public string OutputPath { get; set; }
-        }
+        }*/
 
         [Verb("make-tire", HelpText = "Makes a tire (GTTR) file.")]
         public class MakeTireVerbs
