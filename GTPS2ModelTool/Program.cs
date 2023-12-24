@@ -29,10 +29,9 @@ namespace GTPS2ModelTool
             Logger.Info("");
 
 
-            var p = Parser.Default.ParseArguments<MakeCarModelVerbs, MakeModelSet1Verbs, MakeModelSet2Verbs, MakeTireVerbs, MakeWheelVerbs, DumpVerbs, SplitCarModelVerbs>(args)
+            var p = Parser.Default.ParseArguments<MakeCarModelVerbs, MakeModelSet1Verbs, MakeTireVerbs, MakeWheelVerbs, DumpVerbs, SplitCarModelVerbs>(args)
                 .WithParsed<MakeCarModelVerbs>(MakeCarModelFile)
                 .WithParsed<MakeModelSet1Verbs>(MakeModelSet1)
-                .WithParsed<MakeModelSet2Verbs>(MakeModelSet2)
                 .WithParsed<MakeTireVerbs>(MakeTireFile)
                 .WithParsed<MakeWheelVerbs>(MakeWheelFile)
                 .WithParsed<SplitCarModelVerbs>(SplitCarModel)
@@ -122,12 +121,14 @@ namespace GTPS2ModelTool
             MakeModelSet(ModelSetBuildVersion.ModelSet1, makeVerbs.InputFiles, makeVerbs.OutputPath);
         }
 
+        /*
         static void MakeModelSet2(MakeModelSet2Verbs makeVerbs)
         {
             Logger.Info("Create ModelSet2 (MDLS) task started.");
 
             MakeModelSet(ModelSetBuildVersion.ModelSet2, makeVerbs.InputFiles, makeVerbs.OutputPath);
         }
+        */
 
         static void MakeTireFile(MakeTireVerbs makeTire)
         {
