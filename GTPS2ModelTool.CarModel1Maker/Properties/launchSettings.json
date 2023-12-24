@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "GTPS2ModelTool.CarModel1Maker": {
-      "commandName": "Project",
-      "commandLineArgs": "split -i D:\\Modding_Research\\Gran_Turismo\\Gran_Turismo_3\\data\\cars\\night\\vw0020"
-    }
-  }
-}
