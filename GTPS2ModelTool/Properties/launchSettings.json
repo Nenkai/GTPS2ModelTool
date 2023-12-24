@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GTPS2ModelTool": {
+      "commandName": "Project",
+      "commandLineArgs": "make-model-set -i \"C:\\Safe\\Develop\\repos\\GTPS2ModelTool\\test\\Mercurio.yaml\""
+    }
+  }
+}

@@ -1,0 +1,48 @@
+Models:
+  # Model name, can be anything really
+  MyPlaneModel:
+    # List of LODs, not optional
+    LODs:
+      # LOD list, pointing to a obj file
+      C:\Users\nenkai\Desktop\GT3Models\plane.obj: # LOD0
+      
+        # Parameters for each mesh, optional
+        MeshParameters:
+        
+          # Target mesh name (in obj)
+          plane:
+          
+            # This mesh uses an external texture provided by the engine
+            # This may be for instance, the track's reflection texture
+            UseExternalTexture: true
+            
+            # These commands will be executed BEFORE the shape is called/rendered
+            # After the shape is called, the parameters will be reset (unless the next shape uses same ones)
+            # Preferably meshes should be in order of obj declaration if you are using many parameters (otherwise clogs command list & file size)
+            CommandsBefore:
+            # List of functions
+            #  - AlphaFunction(func, 0)
+            #  - AlphaFail(method)
+            #  - BlendFunction(a, b, c, d, fix)
+            #  - DepthBias(5.0)
+            #  - DisableAlphaTest
+            #  - DisableCullFace
+            #  - DisableDepthMask
+            #  - DestinationAlphaFunc(func)
+            #  - EnableDestinationAlphaTest
+            #  - MatrixMode(mode)
+            #  - PushMatrix
+            #  - PopMatrix
+            #  - Rotate(angle, x, y, z)
+            #  - Translate(x, y, z)
+            #  - Scale(x, y, z)
+           
+        # Callback when lights are off/on
+        TailLampCallback:
+          Off:
+            - Brake_Off # Use shape 'Brake_Off'
+          On:
+            - Brake_On  # Use shape 'Brake_On'
+            
+      C:\Users\nenkai\Desktop\GT3Models\plane2.obj: # LOD1
+        # nothing to do in particular

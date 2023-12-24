@@ -1,0 +1,549 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpTriStrip</name>
+    </assembly>
+    <members>
+        <member name="T:SharpTriStrip.EdgeInfo">
+            <summary>
+            Represents a single edge that one or two <see cref="T:SharpTriStrip.FaceInfo"/> share. Used internally only.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.EdgeInfo.RefCount">
+            <summary>
+            Number of objects that reference this <see cref="T:SharpTriStrip.EdgeInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.EdgeInfo.Face0">
+            <summary>
+            First <see cref="T:SharpTriStrip.FaceInfo"/> that contains this <see cref="T:SharpTriStrip.EdgeInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.EdgeInfo.Face1">
+            <summary>
+            Second <see cref="T:SharpTriStrip.FaceInfo"/> that contains this <see cref="T:SharpTriStrip.EdgeInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.EdgeInfo.V0">
+            <summary>
+            Start index of this <see cref="T:SharpTriStrip.EdgeInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.EdgeInfo.V1">
+            <summary>
+            End index of this <see cref="T:SharpTriStrip.EdgeInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.EdgeInfo.Next0">
+            <summary>
+            First <see cref="T:SharpTriStrip.EdgeInfo"/> that this <see cref="T:SharpTriStrip.EdgeInfo"/> points to.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.EdgeInfo.Next1">
+            <summary>
+            Second <see cref="T:SharpTriStrip.EdgeInfo"/> that this <see cref="T:SharpTriStrip.EdgeInfo"/> points to.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.EdgeInfo.#ctor(System.Int32,System.Int32)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.EdgeInfo"/> with two indices provided.
+            </summary>
+            <param name="v0">Start index of this <see cref="T:SharpTriStrip.EdgeInfo"/>.</param>
+            <param name="v1">End index of this <see cref="T:SharpTriStrip.EdgeInfo"/>.</param>
+        </member>
+        <member name="T:SharpTriStrip.FaceInfo">
+            <summary>
+            Represents a single face/triangle consisting of three indices. Used internally only.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.FaceInfo.V0">
+            <summary>
+            First index of this <see cref="T:SharpTriStrip.FaceInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.FaceInfo.V1">
+            <summary>
+            Second index of this <see cref="T:SharpTriStrip.FaceInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.FaceInfo.V2">
+            <summary>
+            Third index of this <see cref="T:SharpTriStrip.FaceInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.FaceInfo.StripID">
+            <summary>
+            <see cref="T:SharpTriStrip.StripInfo"/> to which this <see cref="T:SharpTriStrip.FaceInfo"/> belongs to.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.FaceInfo.TestStripID">
+            <summary>
+            Experimental <see cref="T:SharpTriStrip.StripInfo"/> to which this <see cref="T:SharpTriStrip.FaceInfo"/> belongs to.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.FaceInfo.ExperimentID">
+            <summary>
+            Unique experimental identifier of this <see cref="T:SharpTriStrip.FaceInfo"/>, used only in experiments.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.FaceInfo.IsFake">
+            <summary>
+            <see langword="true"/> if this <see cref="T:SharpTriStrip.FaceInfo"/> is fake and does not exist in the initial 
+            index buffer given; otherwise, <see langword="false"/>.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.FaceInfo.#ctor(System.Int32,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Creates new instance of <see cref="T:SharpTriStrip.FaceInfo"/> with indices given.
+            </summary>
+            <param name="v0">First index of this <see cref="T:SharpTriStrip.FaceInfo"/>.</param>
+            <param name="v1">Second index of this <see cref="T:SharpTriStrip.FaceInfo"/>.</param>
+            <param name="v2">Third index of this <see cref="T:SharpTriStrip.FaceInfo"/>.</param>
+            <param name="isFake"><see langword="true"/> if this <see cref="T:SharpTriStrip.FaceInfo"/> is fake and does not exist 
+            in the initial index buffer given; otherwise, <see langword="false"/>.</param>
+        </member>
+        <member name="M:SharpTriStrip.FaceInfo.Equals(SharpTriStrip.FaceInfo)">
+            <summary>
+            Indicates whether the current <see cref="T:SharpTriStrip.FaceInfo"/> is equal to another <see cref="T:SharpTriStrip.FaceInfo"/> specified.
+            </summary>
+            <param name="other">A <see cref="T:SharpTriStrip.FaceInfo"/> to compare with this <see cref="T:SharpTriStrip.FaceInfo"/>.</param>
+            <returns><see langword="true"/> if the current <see cref="T:SharpTriStrip.FaceInfo"/> is equal to the other 
+            <see cref="T:SharpTriStrip.FaceInfo"/> specified; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.FaceInfo.Equals(System.Object)">
+            <summary>
+            Determines whether the specified object is equal to the current <see cref="T:SharpTriStrip.FaceInfo"/>.
+            </summary>
+            <param name="obj">The object to compare with the current <see cref="T:SharpTriStrip.FaceInfo"/>.</param>
+            <returns><see langword="true"/> if the specified object is equal to the current <see cref="T:SharpTriStrip.FaceInfo"/>;
+            otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.FaceInfo.GetHashCode">
+            <summary>
+            Serves as the default hash function.
+            </summary>
+            <returns>A hash code for the current <see cref="T:SharpTriStrip.FaceInfo"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.FaceInfo.ToString">
+            <summary>
+            Returns a string that represents the current <see cref="T:SharpTriStrip.FaceInfo"/>.
+            </summary>
+            <returns>A string that represents the current <see cref="T:SharpTriStrip.FaceInfo"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.FaceInfo.op_Equality(SharpTriStrip.FaceInfo,SharpTriStrip.FaceInfo)">
+            <summary>
+            Compares two <see cref="T:SharpTriStrip.FaceInfo"/> instances and checks whether they are equal.
+            </summary>
+            <param name="lhs">Left-hand-side <see cref="T:SharpTriStrip.FaceInfo"/> to compare.</param>
+            <param name="rhs">Right-hand-side <see cref="T:SharpTriStrip.FaceInfo"/> to compare.</param>
+            <returns><see langword="true"/> if two instances are equal; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.FaceInfo.op_Inequality(SharpTriStrip.FaceInfo,SharpTriStrip.FaceInfo)">
+            <summary>
+            Compares two <see cref="T:SharpTriStrip.FaceInfo"/> instances and checks whether they are not equal.
+            </summary>
+            <param name="lhs">Left-hand-side <see cref="T:SharpTriStrip.FaceInfo"/> to compare.</param>
+            <param name="rhs">Right-hand-side <see cref="T:SharpTriStrip.FaceInfo"/> to compare.</param>
+            <returns><see langword="true"/> if two instances are not equal; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="T:SharpTriStrip.Stripifier">
+            <summary>
+            Provides methods for creating strip arrays out of index datas. Used internally only.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.Stripifier.#ctor">
+            <summary>
+            Creates a new instance <see cref="T:SharpTriStrip.Stripifier"/>.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.Stripifier.IsDegenerate(SharpTriStrip.FaceInfo)">
+            <summary>
+            Checks if <see cref="T:SharpTriStrip.FaceInfo"/> is degenerate, meaning has 2 or more shared vertices.
+            </summary>
+            <param name="face"><see cref="T:SharpTriStrip.FaceInfo"/> to check.</param>
+            <returns><see langword="true"/> if <see cref="T:SharpTriStrip.FaceInfo"/> provided has 2 or more shared vertices;
+            otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.Stripifier.IsDegenerate(System.UInt16,System.UInt16,System.UInt16)">
+            <summary>
+            Checks if indices form a degenerate face, meaning one that has 2 or more shared vertices.
+            </summary>
+            <param name="v0">First index of the face.</param>
+            <param name="v1">Second index of the face.</param>
+            <param name="v2">Third index of the face.</param>
+            <returns><see langword="true"/> if indices form a degenerate face; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.Stripifier.FindEdgeInfo(System.Collections.Generic.List{SharpTriStrip.EdgeInfo},System.Int32,System.Int32)">
+            <summary>
+            Finds the <see cref="T:SharpTriStrip.EdgeInfo"/> using two indices provided.
+            </summary>
+            <param name="edgeInfos"><see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:SharpTriStrip.EdgeInfo"/> that contains all
+            edge information of faces and strips.</param>
+            <param name="v0">First index of <see cref="T:SharpTriStrip.EdgeInfo"/> to search for.</param>
+            <param name="v1">Second index of <see cref="T:SharpTriStrip.EdgeInfo"/> to search for.</param>
+            <returns><see cref="T:SharpTriStrip.EdgeInfo"/> that consists of two indices given, if exists; otherwise, <see langword="null"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.Stripifier.FindFaceInfo(System.Collections.Generic.List{SharpTriStrip.EdgeInfo},System.Int32,System.Int32,SharpTriStrip.FaceInfo)">
+            <summary>
+            Finds the <see cref="T:SharpTriStrip.FaceInfo"/> using <see cref="T:System.Collections.Generic.List`1"/> of <see cref="T:SharpTriStrip.EdgeInfo"/> and
+            two indices that form one of the face's edges. Note that this method will attempt to return 
+            <see cref="T:SharpTriStrip.FaceInfo"/> that is different from the <paramref name="faceInfo"/>.
+            </summary>
+            <param name="edgeInfos"><see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:SharpTriStrip.EdgeInfo"/> that contains all
+            edge information of faces and strips.</param>
+            <param name="v0">First index of <see cref="T:SharpTriStrip.FaceInfo"/> to search for.</param>
+            <param name="v1">Second index of <see cref="T:SharpTriStrip.FaceInfo"/> to search for.</param>
+            <param name="faceInfo"><see cref="T:SharpTriStrip.FaceInfo"/> to base on; if a unique <see cref="T:SharpTriStrip.FaceInfo"/>
+            exists that shares any two indices with this one, it is being prioritized as a return value.</param>
+            <returns><see cref="T:SharpTriStrip.FaceInfo"/> that contains two indices given, if exists; otherwise, <see langword="null"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.Stripifier.Stripify(System.Collections.Generic.IEnumerable{System.UInt16},System.Int32,System.Int32,System.UInt16,System.Collections.Generic.List{SharpTriStrip.StripInfo}@,System.Collections.Generic.List{SharpTriStrip.FaceInfo}@)">
+            <summary>
+            Generates <see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:SharpTriStrip.StripInfo"/> using the input index list provided.
+            </summary>
+            <param name="indices">Input <see cref="T:System.Collections.Generic.IEnumerable`1"/> of type <see cref="T:System.UInt16"/> that contains
+            index buffer.</param>
+            <param name="cacheSize">Cache size that will be used for <see cref="T:SharpTriStrip.VertexCache"/>.</param>
+            <param name="minStripLength">Minimum strip length that is considered when generating <paramref name="outStrips"/>;
+            if length is smaller than this number, faces are being pushed into <paramref name="outFaceList"/>.</param>
+            <param name="maxIndex">Maximum index encountered in <paramref name="indices"/>.</param>
+            <param name="outStrips">Output <see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:SharpTriStrip.StripInfo"/> that contains all
+            generated strips based on the input provided.</param>
+            <param name="outFaceList">Output <see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:SharpTriStrip.FaceInfo"/> that contains separate
+            <see cref="T:SharpTriStrip.FaceInfo"/> that are not being included in strips because of <paramref name="minStripLength"/>.</param>
+        </member>
+        <member name="M:SharpTriStrip.Stripifier.CreateStrips(System.Collections.Generic.List{SharpTriStrip.StripInfo},System.Boolean,System.Boolean,System.Int32,System.Collections.Generic.List{System.Int32}@,System.Int32@)">
+            <summary>
+            Generates actual strips from the list-in-strip-order. Note that if <paramref name="stitchStrips"/> is set
+            to false, then strips in <paramref name="stripIndices"/> will be separated by the value of -1.
+            </summary>
+            <param name="allStrips"><see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:SharpTriStrip.StripInfo"/> that contains all
+            strip information required for final output.</param>
+            <param name="stitchStrips"><see langword="true"/> if all strips should be "stitched together", meaning
+            combined into one unified strip; otherwise, <see langword="false"/>.</param>
+            <param name="restart">For GPU enables primitive restart; note that it is meaningless when dealing
+            with <paramref name="stitchStrips"/> set to <see langword="false"/>.</param>
+            <param name="restartValue">Restart value in case <paramref name="restart"/> is set to <see langword="true"/>.</param>
+            <param name="stripIndices">Output <see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:System.Int32"/> that contains strip
+            index buffers. Note that all strips are separated by the value of -1.</param>
+            <param name="numSeparateStrips">Final number of strips generated at the output.</param>
+        </member>
+        <member name="T:SharpTriStrip.StripInfo">
+            <summary>
+            Represents a single strip that start face information, <see cref="T:SharpTriStrip.FaceInfo"/> information, and
+            (optional) unique identifier. Used internally only.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripInfo.StartInfo">
+            <summary>
+            <see cref="T:SharpTriStrip.StripStartInfo"/> of this <see cref="T:SharpTriStrip.StripInfo"/> with start information about faces and edges.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripInfo.FaceInfos">
+            <summary>
+            <see cref="T:System.Collections.Generic.List`1"/> of type <see cref="T:SharpTriStrip.FaceInfo"/> that contains all faces in this <see cref="T:SharpTriStrip.StripInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripInfo.StripID">
+            <summary>
+            Unique identifier of this <see cref="T:SharpTriStrip.StripInfo"/> that is used to group <see cref="T:SharpTriStrip.FaceInfo"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripInfo.ExperimentID">
+            <summary>
+            Experimental identifier of this <see cref="T:SharpTriStrip.StripInfo"/> that is used in making strip tests.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripInfo.Visited">
+            <summary>
+            <see langword="true"/> if this <see cref="T:SharpTriStrip.StripInfo"/> has already been finialized; otherwise, <see langword="false"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripInfo.NumDegenerates">
+            <summary>
+            Number of degenerate <see cref="T:SharpTriStrip.FaceInfo"/> that this <see cref="T:SharpTriStrip.StripInfo"/> contains. To check whether
+            a <see cref="T:SharpTriStrip.FaceInfo"/> is degenerate, refer to <see cref="M:SharpTriStrip.Stripifier.IsDegenerate(SharpTriStrip.FaceInfo)"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripInfo.IsExperiment">
+            <summary>
+            <see langword="true"/> if this <see cref="T:SharpTriStrip.StripInfo"/> is experimental, meaning has 
+            <see cref="P:SharpTriStrip.StripInfo.ExperimentID"/> >= 0; otherwise, <see langword="false"/>.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.StripInfo.#ctor(SharpTriStrip.StripStartInfo,System.Int32,System.Int32)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.StripInfo"/>.
+            </summary>
+            <param name="startInfo"><see cref="T:SharpTriStrip.StripStartInfo"/> that contains start face of this <see cref="T:SharpTriStrip.StripInfo"/>.</param>
+            <param name="stripID">Unique identifier for this <see cref="T:SharpTriStrip.StripInfo"/>.</param>
+            <param name="experimentID">Experimental identifier for this <see cref="T:SharpTriStrip.StripInfo"/>. Used in experiments only.</param>
+        </member>
+        <member name="M:SharpTriStrip.StripInfo.IsInStrip(SharpTriStrip.FaceInfo)">
+            <summary>
+            Checks whether the <see cref="T:SharpTriStrip.FaceInfo"/> provided belongs to this <see cref="T:SharpTriStrip.StripInfo"/>.
+            </summary>
+            <param name="faceInfo"><see cref="T:SharpTriStrip.FaceInfo"/> instance to check.</param>
+            <returns><see langword="true"/> if <see cref="T:SharpTriStrip.FaceInfo"/> is not <see langword="null"/> and if its identifier
+            matches identifier <see cref="P:SharpTriStrip.StripInfo.StripID"/> of this strip; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.StripInfo.IsMarked(SharpTriStrip.FaceInfo)">
+            <summary>
+            Checks if either the <see cref="T:SharpTriStrip.FaceInfo"/> has a real strip index because it is already assigned to a
+            committed strip OR it is assigned in an experiment and the experiment index is the one we are building for.
+            </summary>
+            <param name="faceInfo"><see cref="T:SharpTriStrip.FaceInfo"/> to check.</param>
+            <returns><see langword="true"/> if <see cref="P:SharpTriStrip.FaceInfo.StripID"/> is >= 0 or if its experimental
+            identifier <see cref="P:SharpTriStrip.FaceInfo.ExperimentID"/> equals <see cref="P:SharpTriStrip.StripInfo.ExperimentID"/> of this strip;
+            otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.StripInfo.MarkTriangle(SharpTriStrip.FaceInfo)">
+            <summary>
+            Marks the face with the current <see cref="P:SharpTriStrip.StripInfo.StripID"/> of this <see cref="T:SharpTriStrip.StripInfo"/>.
+            </summary>
+            <param name="faceInfo"><see cref="T:SharpTriStrip.FaceInfo"/> to mark.</param>
+        </member>
+        <member name="M:SharpTriStrip.StripInfo.SharesEdge(SharpTriStrip.FaceInfo,System.Collections.Generic.List{SharpTriStrip.EdgeInfo})">
+            <summary>
+            Checks if the input <see cref="T:SharpTriStrip.FaceInfo"/> and this <see cref="T:SharpTriStrip.StripInfo"/> share an edge.
+            </summary>
+            <param name="faceInfo"><see cref="T:SharpTriStrip.FaceInfo"/> to check.</param>
+            <param name="edgeInfos"><see cref="T:System.Collections.Generic.List`1"/> of all <see cref="T:SharpTriStrip.EdgeInfo"/> instances that
+            provide edge information of all faces, including this <see cref="T:SharpTriStrip.StripInfo"/>.</param>
+            <returns><see langword="true"/> if <see cref="T:SharpTriStrip.FaceInfo"/> provided shares at least one edge
+            with this <see cref="T:SharpTriStrip.StripInfo"/>; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.StripInfo.Build(System.Collections.Generic.List{SharpTriStrip.EdgeInfo})">
+            <summary>
+            Builds a strip forward as far as we can go, then builds backwards, and joins the unified list 
+            of <see cref="T:SharpTriStrip.FaceInfo"/>.
+            </summary>
+            <param name="edgeInfos"><see cref="T:System.Collections.Generic.List`1"/> of all <see cref="T:SharpTriStrip.EdgeInfo"/> that provide edge information
+            for all faces and strips, including this one.</param>
+        </member>
+        <member name="T:SharpTriStrip.StripStartInfo">
+            <summary>
+            Provides general information about start of a strip. Used internally only.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripStartInfo.Face">
+            <summary>
+            First <see cref="T:SharpTriStrip.FaceInfo"/> of the strip.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripStartInfo.Edge">
+            <summary>
+            First <see cref="T:SharpTriStrip.EdgeInfo"/> of the strip.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.StripStartInfo.ToV1">
+            <summary>
+            Controls clockwise orientation of the faces in the strip.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.StripStartInfo.#ctor(SharpTriStrip.FaceInfo,SharpTriStrip.EdgeInfo,System.Boolean)">
+            <summary>
+            Creates new instance of <see cref="T:SharpTriStrip.StripStartInfo"/> with values provided.
+            </summary>
+            <param name="face">First <see cref="T:SharpTriStrip.FaceInfo"/> of the strip.</param>
+            <param name="edge">First <see cref="T:SharpTriStrip.EdgeInfo"/> of the strip.</param>
+            <param name="toV1">Controls clockwise orientation of the faces in the strip.</param>
+        </member>
+        <member name="T:SharpTriStrip.TriStrip">
+            <summary>
+            Provides methods for generating triangle strips and optimizing index buffers.
+            </summary>
+        </member>
+        <member name="T:SharpTriStrip.TriStrip.PrimitiveType">
+            <summary>
+            Type of <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> that are being generated when calling 
+            <see cref="M:SharpTriStrip.TriStrip.GenerateStrips(System.UInt16[],SharpTriStrip.TriStrip.PrimitiveGroup[]@,System.Boolean)"/>.
+            </summary>
+        </member>
+        <member name="F:SharpTriStrip.TriStrip.PrimitiveType.List">
+            <summary>
+            <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> that contains optimized index buffers and/or separated faces/triangles.
+            </summary>
+        </member>
+        <member name="F:SharpTriStrip.TriStrip.PrimitiveType.Strip">
+            <summary>
+            <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> that contains faces/triangles organized in a single strip.
+            </summary>
+        </member>
+        <member name="T:SharpTriStrip.TriStrip.PrimitiveGroup">
+            <summary>
+            A wrapper around index buffer that specifies its type.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.TriStrip.PrimitiveGroup.Type">
+            <summary>
+            <see cref="T:SharpTriStrip.TriStrip.PrimitiveType"/> of this <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/>.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.TriStrip.PrimitiveGroup.Indices">
+            <summary>
+            Index buffer array that this <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> wraps.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.PrimitiveGroup.#ctor">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> with zero-length index buffer.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.PrimitiveGroup.#ctor(SharpTriStrip.TriStrip.PrimitiveType,System.Int32)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> with type specified and index buffer of length given.
+            </summary>
+            <param name="type"><see cref="T:SharpTriStrip.TriStrip.PrimitiveType"/> of this group.</param>
+            <param name="numIndices">Length of index buffer of this group.</param>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.PrimitiveGroup.#ctor(SharpTriStrip.TriStrip.PrimitiveType,System.UInt16[])">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> with type specified and index buffer given.
+            </summary>
+            <param name="type"><see cref="T:SharpTriStrip.TriStrip.PrimitiveType"/> of this group.</param>
+            <param name="indices">Index buffer of this group. If buffer is <see langword="null"/>, it is being
+            initialized to an array of zero length.</param>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.#ctor">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.TriStrip"/>.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.EnableRestart(System.Int32)">
+            <summary>
+            For GPUs that support primitive restart, this sets a value as the restart index.
+            Restart is meaningless if strips are not being stitched together, so enabling restart
+            makes <see cref="T:SharpTriStrip.TriStrip"/> forcing stitching. So, you'll get back one strip.
+            </summary>
+            <param name="restartValue">Restart value to set if restart should be enabled.</param>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.DisableRestart">
+            <summary>
+            For GPUs that support primitive restart, this disables using primitive restart.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.SetCacheSize(System.Int32)">
+            <summary>
+            Sets the cache size which the stripifier uses to optimize the data.
+            Controls the length of the generated individual strips.
+            This is the "actual" cache size, so 24 for GeForce3 and 16 for GeForce1/2
+            You may want to play around with this number to tweak performance.
+            </summary>
+            <param name="cacheSize">Cache size to set. Default value is 16.</param>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.SetStitchStrips(System.Boolean)">
+            <summary>
+            Value to indicate whether to stitch together strips into one huge strip or not.
+            If set to <see langword="true"/>, you'll get back one huge strip stitched together using degenerate
+            triangles. If set to <see langword="false"/>, you'll get back a large number of separate strips.
+            </summary>
+            <param name="stitchStrips"><see langword="true"/> to stitch strips; otherwise, <see langword="false"/>.
+            Default value is <see langword="true"/>.</param>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.SetMinStripSize(System.Int32)">
+            <summary>
+            Sets the minimum acceptable size for a strip, in triangles.
+            All strips generated which are shorter than this will be thrown into one big, separate list.
+            </summary>
+            <param name="minSize">Minimum size of a single strip. Default value is 0.</param>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.SetListsOnly(System.Boolean)">
+            <summary>
+            If set to <see langword="true"/>, will return an optimized list, with no strips at all.
+            </summary>
+            <param name="listsOnly"><see langword="true"/> if return lists only; otherwise, <see langword="false"/>.
+            Default value is <see langword="false"/>.</param>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.GenerateStrips(System.UInt16[],SharpTriStrip.TriStrip.PrimitiveGroup[]@,System.Boolean)">
+            <summary>
+            Generates triangle strips based on the index buffer provided.
+            </summary>
+            <param name="indices">Input index buffer to generate strips.</param>
+            <param name="primGroups"><see cref="T:System.Array"/> of optimized/stripified <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/>.</param>
+            <param name="validateEnabled"><see langword="true"/> if enable index and strip validation;
+            otherwise, <see langword="false"/>.</param>
+            <returns><see langword="true"/> if triangles strips have been successfully generated (and, optionally,
+            verified); otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.TriStrip.RemapIndices(SharpTriStrip.TriStrip.PrimitiveGroup[],System.UInt16)">
+            <summary>
+            Method to remap your indices to improve spatial locality in your vertex buffer.
+            </summary>
+            <param name="primGroups"><see cref="T:System.Array"/> of <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/> you want remapped.</param>
+            <param name="numVerts">Number of vertices in your vertex buffer, also can be thought of as the range
+            of acceptable values for indices in your primitive groups.</param>
+            <returns><see cref="T:System.Array"/> of remapped <see cref="T:SharpTriStrip.TriStrip.PrimitiveGroup"/>. Note that vertex buffers
+            have to be remapped accordingly.</returns>
+        </member>
+        <member name="T:SharpTriStrip.Utils">
+            <summary>
+            Provides memory set utility methods.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.Utils.Memset(System.Byte[],System.Byte,System.Int32)">
+            <summary>
+            Sets memory in the array given with value provided.
+            </summary>
+            <param name="array"><see cref="T:System.Array"/> of type <see cref="T:System.Byte"/> to set.</param>
+            <param name="value">Value to initialize array with.</param>
+            <param name="length">Length of array to set value with.</param>
+        </member>
+        <member name="M:SharpTriStrip.Utils.Memset(System.Int32[],System.Byte,System.Int32)">
+            <summary>
+            Sets memory in the array given with value provided.
+            </summary>
+            <param name="array"><see cref="T:System.Array"/> of type <see cref="T:System.Int32"/> to set.</param>
+            <param name="value">Value to initialize array with.</param>
+            <param name="length">Length of array to set value with.</param>
+        </member>
+        <member name="T:SharpTriStrip.VertexCache">
+            <summary>
+            Provides simple cache with an internal array of certain length.
+            </summary>
+        </member>
+        <member name="P:SharpTriStrip.VertexCache.Item(System.Int32)">
+            <summary>
+            Gets or sets value at a certain index provided. Note that this does not do out of bounds check.
+            </summary>
+            <param name="index">Index to get or set value at.</param>
+            <returns><see cref="T:System.Int32"/> at the index provided.</returns>
+        </member>
+        <member name="M:SharpTriStrip.VertexCache.#ctor">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.VertexCache"/> with default cache of size 16.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.VertexCache.#ctor(System.Int32)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpTriStrip.VertexCache"/> with cache of size given.
+            </summary>
+            <param name="size">Size of the internal cache. Note that this does not do out of range check.</param>
+        </member>
+        <member name="M:SharpTriStrip.VertexCache.InCache(System.Int32)">
+            <summary>
+            Checks whether value provided is in cache.
+            </summary>
+            <param name="entry">Value to check.</param>
+            <returns><see langword="true"/> if value is in cache; otherwise, <see langword="false"/>.</returns>
+        </member>
+        <member name="M:SharpTriStrip.VertexCache.AddEntry(System.Int32)">
+            <summary>
+            Adds value and returns its index in the cache.
+            </summary>
+            <param name="entry">Value to add.</param>
+            <returns>Index of the added value in the cache.</returns>
+        </member>
+        <member name="M:SharpTriStrip.VertexCache.Clear">
+            <summary>
+            Clears cache and all its values.
+            </summary>
+        </member>
+        <member name="M:SharpTriStrip.VertexCache.Copy(SharpTriStrip.VertexCache)">
+            <summary>
+            Copies values of this cache into other cache.
+            </summary>
+            <param name="other"><see cref="T:SharpTriStrip.VertexCache"/> to copy values to.</param>
+        </member>
+    </members>
+</doc>

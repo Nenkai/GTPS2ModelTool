@@ -1,0 +1,34 @@
+# Model Config file example
+# Should sit next to obj file with .yaml extension
+
+# Use this only if you are not building from a obj with a single lod directly
+Models:
+  model_name:
+    LODs:
+      GT3Edit5.obj:
+        TaillampCallback: # Which shapes to call when tail lamps are off/on
+          Off:
+           - lights_off
+          On:
+           - lights_on
+
+# Textures configuration
+Textures:
+  # Should match relative paths in .mtl
+  path_to_texture:
+    # Valid formats: SCE_GS_PSMT4 (4bpp, 16 colors), SCE_GS_PSMT8 (8bpp, 256 colors), SCE_GS_PSMCT32 (32bpp)
+    Format: SCE_GS_PSMT8
+
+    # Valid wrap modes: SCE_GS_REPEAT, SCE_GS_CLAMP, SCE_GS_REGION_CLAMP, SCE_GS_REGION_REPEAT
+    # If not provided, SCE_GS_REGION_CLAMP is used.
+    WrapModeS: SCE_GS_REGION_CLAMP
+    WrapModeT: SCE_GS_REGION_CLAMP
+
+    # Use this if using SCE_GS_REPEAT. MUST be power of two (32, 64, 128, etc)
+    RepeatWidth: 0
+    RepeatHeight: 0
+
+# Meshes configuration TODO
+Meshes:
+  mesh_name:
+    UseExternalTexture: false # Set to true if this mesh should use the external texture - track reflection
