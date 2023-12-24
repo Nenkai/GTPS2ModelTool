@@ -10,6 +10,18 @@ For usage documentation, refer to the [Modding Hub](https://nenkai.github.io/gt-
 
 ![alt text](https://pbs.twimg.com/media/F9h0TbzWMAAUP5b?format=jpg&name=small)
 
+## Current Tasks
+
+I am slowly retiring from GT research, but here are the current tasks left to be done
+
+* Tex1 Optimizations - heavily needed
+* Properly support reflective meshes?
+* Support for Tex1/Material patches for multi-color car support
+* More GT3 callbacks support
+* GT4 VM support?
+
+---
+
 ## Details
 
 There is some code for GT4 (as the codebase essentially works for both games) but still needs heavy work.
