@@ -1,0 +1,68 @@
+################################
+#  PS2 ModelSet Config Sample  #
+################################
+# This is a sample file which showcases how to build model sets.
+# NOTE: This file will not build as is. It is only provided as an example.
+
+Models:
+  # List of models. Every model will be rendered on every render tick (shapes to render depending on current LOD.)
+  MyPlaneModel: # Model name, can be anything really
+    LODs: # List of LODs, not optional
+      plane.obj: # LOD0 - Each LOD must be pointing to a obj file
+
+        # Parameters for each mesh, optional
+        MeshParameters:
+
+          # Target mesh name (in obj)
+          plane:
+
+            # If 'UseExternalTexture' is true, this mesh uses an external texture provided by the engine
+            # This may be for instance, the track's reflection texture
+            UseExternalTexture: false
+
+            # Model render commands. If provided, these commands will be executed BEFORE the shape is called/rendered
+            # The parameters will be reset (unless the next shape uses same ones)
+            # Preferably meshes should be in order of obj declaration if you are using many parameters (otherwise clogs command list & file size)
+            # Command List: https://nenkai.github.io/gt-modding-hub/ps2/model_render_commands/
+            CommandsBefore:
+            # - AlphaFunction(ALWAYS, 0)
+            # - AlphaFail(ALWAYS)
+
+        # Callback when lights are off/on
+        TailLampCallback:
+          Off:
+            - Brake_Off # Use shape 'Brake_Off' when tail lamps are off
+          On:
+            - Brake_On  # Use shape 'Brake_On' when tail lamps are on
+
+      plane1.obj: # LOD1
+        # ...
+
+  # <More models here if needed>
+  MyPlaneModel2:
+    # ...
+    
+##############################
+# Configuration for textures #
+##############################
+Textures:
+  MyModel/MyTexture.png: # Should match paths in the .mtl file
+
+    # Format of the texture. Available formats:
+    # - SCE_GS_PSMT4 (4bpp, 16 colors palette) [DEFAULT]
+    # - SCE_GS_PSMT8 (8bpp, 256 colors palette)
+    # - SCE_GS_PSMT32 (32bpp)
+    Format: SCE_GS_PSMT4
+
+    # Wrap Mode S/T - X/Y axis texture wrapping. Available modes:
+    # - SCE_GS_REPEAT
+    # - SCE_GS_CLAMP
+    # - SCE_GS_REGION_CLAMP [DEFAULT]
+    # - SCE_GS_REGION_REPEAT
+    WrapModeS: SCE_GS_REGION_CLAMP
+    WrapModeT: SCE_GS_REGION_CLAMP
+
+    # Repeat Width/Height - How long to repeat texture ONLY when using repeat mode
+    # MUST be a power of two
+    # RepeatWidth: 32
+    # RepeatHeight: 32

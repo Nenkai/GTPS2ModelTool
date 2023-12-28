@@ -4,7 +4,7 @@ Models:
     # List of LODs, not optional
     LODs:
       # LOD list, pointing to a obj file
-      C:\Users\nenkai\Desktop\GT3Models\plane.obj: # LOD0
+      plane.obj: # LOD0
       
         # Parameters for each mesh, optional
         MeshParameters:
@@ -44,5 +44,4 @@ Models:
           On:
             - Brake_On  # Use shape 'Brake_On'
             
-      C:\Users\nenkai\Desktop\GT3Models\plane2.obj: # LOD1
-        # nothing to do in particular
+      plane2.obj: # LOD1

@@ -1,0 +1,29 @@
+Models:
+  # Model name, can be anything really
+  SphereModel:
+    # List of LODs, not optional
+    LODs:
+      # LOD list, pointing to a obj file
+      plane.obj: # LOD0
+      
+        # Parameters for each mesh, optional
+        MeshParameters:
+        
+          # Target mesh name (in obj)
+          Sphere_ref:
+          
+            # Use reflection external texture
+            UseExternalTexture: true
+            
+            CommandsBefore:
+            # This is the minimum commands required to get the shape to blend to the base shape
+              - DisableAlphaTest 
+              - BlendFunction(0, 2, 1, 1, 0)
+              - DisableDepthMask
+
+Textures:
+  body.png:
+    WrapModeS: SCE_GS_REPEAT
+    WrapModeT: SCE_GS_REPEAT
+    RepeatWidth: 256
+    RepeatHeight: 256

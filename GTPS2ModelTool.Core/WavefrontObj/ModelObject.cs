@@ -78,6 +78,9 @@ namespace GTPS2ModelTool.Core.WavefrontObj
                         if (string.IsNullOrEmpty(splitLine[i]))
                             continue;
 
+                        if (splitLine[i] == "(null)" || splitLine[i] == "None")
+                            break;
+
                         Material material = obj.MaterialObject.Materials.Find(l => l.Name == splitLine[i]);
                         if (material is not null)
                             currentMaterial = material.Id;

@@ -18,10 +18,12 @@ namespace GTPS2ModelTool
     {
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
+        public const string Version = "1.0.1";
+
         static void Main(string[] args)
         {
             Logger.Info("-----------------------------------------");
-            Logger.Info("- GTPS2ModelTool by Nenkai");
+            Logger.Info($"- GTPS2ModelTool {Version} by Nenkai");
             Logger.Info("-----------------------------------------");
             Logger.Info("- https://github.com/Nenkai");
             Logger.Info("- https://nenkai.github.io/gt-modding-hub/");

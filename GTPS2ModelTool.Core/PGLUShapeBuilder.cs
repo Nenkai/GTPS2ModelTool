@@ -76,6 +76,9 @@ namespace GTPS2ModelTool.Core
                 if (textureIndex != 0)
                     prim |= SCE_GS_PRIM.SCE_GS_PRIM_TME; // Textured
 
+                if (externalTexture)
+                    prim |= SCE_GS_PRIM.SCE_GS_PRIM_ABE;
+
                 // VIFCommand holds part of a gif tag within 3 ints
                 var mainCommand = new VIFCommand()
                 {
@@ -123,12 +126,12 @@ namespace GTPS2ModelTool.Core
                 // Normals
                 if (chunk.Normals.Count > 0)
                 {
-                    VIFCommand normalsCommand = MakeNormalsCommand(chunk.Normals);
+                    VIFCommand normalsCommand = MakeNormalsCommand(chunk.Normals, externalTexture);
                     packet.Commands.Add(normalsCommand);
                 }
                 
                 // UVs
-                if (chunk.TextureCords.Count > 0)
+                if (!externalTexture && chunk.TextureCords.Count > 0)
                 {
                     VIFCommand uvCommand = MakeUVCommand(vertCommands.Num, default, chunk.TextureCords);
                     packet.Commands.Add(uvCommand);
@@ -141,9 +144,12 @@ namespace GTPS2ModelTool.Core
 
             shape.NumTriangles = (ushort)triStripMesh.Faces.Count;
 
-            if (hasVertColors)
-                shape.Unk1 = 2; // Required when textured? But only when there isn't vertex colors and normals
-            if (hasUV)
+            if (externalTexture)
+            {
+                shape.Unk1 = 2;
+                shape.Unk3 = 1;
+            }
+            else if (hasUV)
                 shape.Unk1 = 1; // 5 also works, although no idea what it does
 
             Logger.Info($"Tri-striped mesh into {triStripMesh.Chunks.Count} chunks - {shape.NumTriangles} triangles, {shape.TotalStripVerts} strip points, unk1: {shape.Unk1}");
@@ -213,15 +219,19 @@ namespace GTPS2ModelTool.Core
             return vertsPerStripCommand;
         }
 
-        private static VIFCommand MakeNormalsCommand(List<Vector3> normals)
+        private static VIFCommand MakeNormalsCommand(List<Vector3> normals, bool ext = false)
         {
+            // Normals for reflections/external textures are a bit different - diff address
             var normalsCommand = new VIFCommand()
             {
-                VUAddr = 0xC080,
+                VUAddr = ext ? (ushort)0xC040 : (ushort)0xC080,
                 Num = (byte)normals.Count,
                 CommandOpcode = (VIFCommandOpcode)((byte)VIFCommandOpcode.UNPACK | (byte)VIFCommandOpcodeUnpack.UNPACK_V3_32),
                 IRQ = false,
             };
+
+            if (ext)
+                normalsCommand.CommandOpcode |= (VIFCommandOpcode)0x10;
 
             for (int i = 0; i < normals.Count; i++)
             {

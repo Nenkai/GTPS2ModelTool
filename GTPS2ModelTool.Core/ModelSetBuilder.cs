@@ -135,6 +135,8 @@ namespace GTPS2ModelTool.Core
                 var lodModelObj = ModelObject.LoadFromFile(lodObjPath);
                 Logger.Info($"Adding LOD{_currentLOD}: {lod.Key} with {lodModelObj.Meshes.Count} meshes.");
 
+                lodModelObj.Meshes = lodModelObj.Meshes.OrderBy(e => e.Key).ToDictionary(e => e.Key, e => e.Value);
+
                 LODConfig lodConfig = lod.Value ?? new LODConfig();
                 Dictionary<string, int> shapeNameToIndex = new Dictionary<string, int>();
 
