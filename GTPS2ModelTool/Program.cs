@@ -18,7 +18,7 @@ namespace GTPS2ModelTool
     {
         private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.2";
 
         static void Main(string[] args)
         {
