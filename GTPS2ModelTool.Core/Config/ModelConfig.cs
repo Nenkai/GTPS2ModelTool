@@ -6,10 +6,15 @@ using System.Threading.Tasks;
 
 using PDTools.Files.Textures.PS2;
 
-namespace GTPS2ModelTool.Core.Config
+namespace GTPS2ModelTool.Core.Config;
+
+/// <summary>
+/// Configuration for building a model for a model set.
+/// </summary>
+public class ModelConfig
 {
-    public class ModelConfig
-    {
-        public Dictionary<string, LODConfig> LODs { get; set; } = new();
-    }
+    /// <summary>
+    /// LODs of the model.
+    /// </summary>
+    public Dictionary<string, LODConfig> LODs { get; set; } = [];
 }
