@@ -91,10 +91,10 @@ namespace GTPS2ModelTool.Core
                         EndOfPacket = true,
                         Pre = true,
                         Prim = prim,
-                        Regs = new List<byte>()
-                        {
+                        Regs =
+                        [
                             2, 1, 4, 1
-                        }
+                        ]
                     }
                 };
                 packet.Commands.Add(mainCommand);
@@ -151,8 +151,6 @@ namespace GTPS2ModelTool.Core
             }
             else if (hasUV)
                 shape.Unk1 = 1; // 5 also works, although no idea what it does
-
-            Logger.Info($"Tri-striped mesh into {triStripMesh.Chunks.Count} chunks - {shape.NumTriangles} triangles, {shape.TotalStripVerts} strip points, unk1: {shape.Unk1}");
 
             return shape;
         }
@@ -299,49 +297,6 @@ namespace GTPS2ModelTool.Core
 
                 return uvCommand;
             }
-        }
-    }
-
-    public struct Triangle
-    {
-        public ushort A;
-        public ushort B;
-        public ushort C;
-
-        public Triangle(ushort a, ushort b, ushort c)
-        {
-            A = a;
-            B = b;
-            C = c;
-        }
-
-        public ushort GetIndexOf(ushort f)
-        {
-            if (A == f)
-                return 0;
-            else if (B == f)
-                return 1;
-            else if (C == f)
-                return 2;
-
-            return 500;
-        }
-
-        public bool IsValidTriangle()
-        {
-            return this.A != this.B && this.A != this.C && this.B != this.C;
-        }
-
-        public bool IsSameTriangle(Triangle other)
-        {
-            return ((this.A == other.A || this.A == other.B || this.A == other.C) &&
-                (this.B == other.A || this.B == other.B || this.B == other.C) &&
-                (this.C == other.A || this.C == other.B || this.C == other.C));
-        }
-
-        public override string ToString()
-        {
-            return $"{A},{B},{C}";
         }
     }
 }

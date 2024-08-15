@@ -8,666 +8,497 @@ using PDTools.Files.Models.PS2.CarModel1;
 using PDTools.Files.Textures.PS2;
 using PDTools.Files.Models.PS2;
 using PDTools.Files.Models.PS2.ModelSet;
+using PDTools.Files.Textures.PS2.GSPixelFormats;
 
 using GTPS2ModelTool.Core;
 using GTPS2ModelTool.Core.Config;
+using System.Formats.Tar;
 
-namespace GTPS2ModelTool
+namespace GTPS2ModelTool;
+
+internal class Program
 {
-    internal class Program
+    private static Logger Logger = LogManager.GetCurrentClassLogger();
+
+    public const string Version = "1.0.2";
+
+    static void Main(string[] args)
     {
-        private static Logger Logger = LogManager.GetCurrentClassLogger();
+        Logger.Info("-----------------------------------------");
+        Logger.Info($"- GTPS2ModelTool {Version} by Nenkai");
+        Logger.Info("-----------------------------------------");
+        Logger.Info("- https://github.com/Nenkai");
+        Logger.Info("- https://nenkai.github.io/gt-modding-hub/");
+        Logger.Info("-----------------------------------------");
+        Logger.Info("");
 
-        public const string Version = "1.0.2";
-
-        static void Main(string[] args)
+        if (args.Length == 1)
         {
-            Logger.Info("-----------------------------------------");
-            Logger.Info($"- GTPS2ModelTool {Version} by Nenkai");
-            Logger.Info("-----------------------------------------");
-            Logger.Info("- https://github.com/Nenkai");
-            Logger.Info("- https://nenkai.github.io/gt-modding-hub/");
-            Logger.Info("-----------------------------------------");
+            Dump(new DumpVerbs() { InputFile = args[0] });
+            return;
+        }
+
+        var p = Parser.Default.ParseArguments<MakeCarModelVerbs, MakeModelSet1Verbs, MakeTireVerbs, MakeWheelVerbs, DumpVerbs>(args)
+            .WithParsed<MakeCarModelVerbs>(MakeCarModelFile)
+            .WithParsed<MakeModelSet1Verbs>(MakeModelSet1)
+            .WithParsed<MakeTireVerbs>(MakeTireFile)
+            .WithParsed<MakeWheelVerbs>(MakeWheelFile)
+            .WithParsed<DumpVerbs>(Dump);
+    }
+
+    static void MakeModelSet(ModelSetBuildVersion version, IEnumerable<string> inputFiles, string outputPath)
+    {
+        var builder = new ModelSetBuilder(version);
+        if (inputFiles.Count() == 1 && inputFiles.FirstOrDefault().EndsWith(".yaml"))
+        {
+            var file = inputFiles.FirstOrDefault();
+            if (!builder.InitFromConfig(file))
+            {
+                Logger.Error("Model build failed.");
+                return;
+            }
+        }
+        else
+        {
+            foreach (string objFile in inputFiles)
+            {
+                if (Path.GetExtension(objFile) != ".obj")
+                {
+                    Logger.Error("Input files must be obj files (file: {file:l}).", objFile);
+                    return;
+                }
+
+                Logger.Info($"Adding '{objFile}' as new model..");
+
+                var conf = new ModelConfig()
+                {
+                    LODs = new Dictionary<string, LODConfig>()
+                    {
+                        { objFile, new LODConfig() }
+                    }
+                };
+                builder.AddModel(objFile, conf);
+            }
+        }
+
+        ModelSetPS2Base modelSet = builder.Build();
+
+        if (string.IsNullOrEmpty(outputPath))
+        {
+            var first = inputFiles.FirstOrDefault();
+            string dir = Path.GetDirectoryName(first);
+            string name = Path.GetFileNameWithoutExtension(first);
+
+            outputPath = Path.Combine(dir, name + ".mdl");
+        }
+
+        Logger.Info($"Serializing ModelSet to '{outputPath}'...");
+
+        if (modelSet is ModelSet1 modelSet1)
+        {
+            using var fs = new FileStream(outputPath, FileMode.Create);
+            var serializer = new ModelSet1Serializer(modelSet1);
+            serializer.Write(fs);
+
+            Logger.Info($"Serialized ModelSet1. Size: {fs.Length} bytes (0x{fs.Length:X8})");
+        }
+        else if (modelSet is ModelSet2 modelSet2)
+        {
+            using var fs = new FileStream(outputPath, FileMode.Create);
+            var serializer = new ModelSet2Serializer(modelSet2);
+            serializer.Write(fs);
+
+            Logger.Info($"Serialized ModelSet2. Size: {fs.Length} bytes (0x{fs.Length:X8})");
+        }
+
+        Logger.Info("Done.");
+
+        Dumper.DumpFile(outputPath);
+    }
+
+    static void MakeModelSet1(MakeModelSet1Verbs makeVerbs)
+    {
+        Logger.Info("Create ModelSet (MDL1) task started.");
+
+        MakeModelSet(ModelSetBuildVersion.ModelSet1, makeVerbs.InputFiles, makeVerbs.OutputPath);
+    }
+
+    /*
+    static void MakeModelSet2(MakeModelSet2Verbs makeVerbs)
+    {
+        Logger.Info("Create ModelSet2 (MDLS) task started.");
+
+        MakeModelSet(ModelSetBuildVersion.ModelSet2, makeVerbs.InputFiles, makeVerbs.OutputPath);
+    }
+    */
+
+    static void MakeTireFile(MakeTireVerbs makeTire)
+    {
+        Logger.Info("Create tire file task started.");
+
+        if (!File.Exists(makeTire.InputFile))
+        {
+            Logger.Error("Input file does not exist.");
+            return;
+        }
+
+        try
+        {
+            Logger.Info("Loading texture file for tire...");
+
+            TireFile tireFile = BuildTireFile(makeTire.InputFile);
+            if (tireFile is null)
+            {
+                Logger.Error("Failed to make tire file");
+                return;
+            }
+
+            using var output = new FileStream(makeTire.OutputPath, FileMode.Create);
+            tireFile.Write(output);
+
+            Logger.Info($"Created tire file at '{makeTire.OutputPath}'.");
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Failed to make tire file");
+        }
+    }
+
+    static void MakeWheelFile(MakeWheelVerbs makeWheel)
+    {
+        Logger.Info("Create wheel file task started.");
+
+        if (!File.Exists(makeWheel.InputFile))
+        {
+            Logger.Error("Input file does not exist.");
+            return;
+        }
+
+        try
+        {
+            Logger.Info("Loading model file for wheel...");
+
+            WheelFile wheelFile = BuildWheelFile(makeWheel.InputFile);
+            if (wheelFile is null)
+            {
+                Logger.Error("Failed to make wheel file");
+                return;
+            }
+
+            using var output = new FileStream(makeWheel.OutputPath, FileMode.Create);
+            wheelFile.Write(output);
+
+            Logger.Info($"Created wheel file at '{makeWheel.OutputPath}'.");
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Failed to make wheel file");
+        }
+    }
+
+    static void MakeCarModelFile(MakeCarModelVerbs makeCarModelVerbs)
+    {
+        Logger.Info("Create car model file task started.");
+
+        if (!File.Exists(makeCarModelVerbs.InputFile))
+        {
+            Logger.Error("Input car model config file does not exist.");
+            return;
+        }
+
+        Logger.Info("");
+        Logger.Info("[Step 1/6] Loading car model build config..");
+
+        var deserializer = new DeserializerBuilder()
+                    .WithNamingConvention(NullNamingConvention.Instance)
+                    .Build();
+
+        string confFile = File.ReadAllText(makeCarModelVerbs.InputFile);
+        CarModel1Config carModelConfig = deserializer.Deserialize<CarModel1Config>(confFile);
+
+        Logger.Info($"- Model Set: '{carModelConfig.CarModelSet}'");
+        Logger.Info($"- Car Info: '{carModelConfig.CarInfo}'");
+        Logger.Info($"- Tire: '{carModelConfig.Tire}'");
+        Logger.Info($"- Wheel: '{carModelConfig.Wheel}'");
+
+        string dir = Path.GetDirectoryName(Path.GetFullPath(makeCarModelVerbs.InputFile));
+
+        carModelConfig.CarModelSet = Path.Combine(dir, carModelConfig.CarModelSet);
+        if (!File.Exists(carModelConfig.CarModelSet))
+        {
+            Logger.Error($"Input model set file '{carModelConfig.CarModelSet}' does not exist.");
+            return;
+        }
+
+        carModelConfig.CarInfo = Path.Combine(dir, carModelConfig.CarInfo);
+        if (!File.Exists(carModelConfig.CarInfo))
+        {
+            Logger.Error($"Input car info file '{carModelConfig.CarInfo}' does not exist.");
+            return;
+        }
+
+        carModelConfig.Wheel = Path.Combine(dir, carModelConfig.Wheel);
+        if (!File.Exists(carModelConfig.Wheel))
+        {
+            Logger.Error($"Input wheel file '{carModelConfig.CarInfo}' does not exist.");
+            return;
+        }
+
+        carModelConfig.Tire = Path.Combine(dir, carModelConfig.Tire);
+        if (!File.Exists(carModelConfig.Tire))
+        {
+            Logger.Error($"Input tire file '{carModelConfig.Tire}' does not exist.");
+            return;
+        }
+
+        try
+        {
             Logger.Info("");
-
-
-            var p = Parser.Default.ParseArguments<MakeCarModelVerbs, MakeModelSet1Verbs, MakeTireVerbs, MakeWheelVerbs, DumpVerbs, SplitCarModelVerbs>(args)
-                .WithParsed<MakeCarModelVerbs>(MakeCarModelFile)
-                .WithParsed<MakeModelSet1Verbs>(MakeModelSet1)
-                .WithParsed<MakeTireVerbs>(MakeTireFile)
-                .WithParsed<MakeWheelVerbs>(MakeWheelFile)
-                .WithParsed<SplitCarModelVerbs>(SplitCarModel)
-                .WithParsed<DumpVerbs>(Dump);
-
-            /*
-            var builder = new TextureSetBuilder();
-
-            string[] files = Directory.GetFiles(@"C:\Users\nenkai\source\repos\PDTools\PDTools.TextureTool\bin\Debug\net6.0\output_textures");
-            foreach (var file in files.OrderBy(e => int.Parse(Path.GetFileNameWithoutExtension(e))))
+            Logger.Info($"[Step 2/6] Loading model set file '{carModelConfig.CarModelSet}'...");
+            ModelSet1 mainModel = LoadOrBuildModelSet(carModelConfig.CarModelSet);
+            if (mainModel is null)
             {
-                builder.AddImage(file, SCE_GS_PSM.SCE_GS_PSMT4);
+                Logger.Error("Failed to load/build main model set for car model.");
+                return;
             }
-            builder.Build();
+            Logger.Info($"[Step 2/6] Model set loaded - {mainModel.Models.Count} models, {mainModel.Shapes.Count} shapes, {mainModel.Materials.Count} materials, {mainModel.TextureSets.Count} texture sets");
 
-            TextureSet1 set = builder.TextureSet;
+            Logger.Info("");
+            Logger.Info($"[Step 3/6] Loading wheel file '{carModelConfig.Wheel}'...");
 
-            using (var fs = new FileStream("output.tex", FileMode.Create))
-                set.Serialize(fs);
-            */
-        }
-
-        static void MakeModelSet(ModelSetBuildVersion version, IEnumerable<string> inputFiles, string outputPath)
-        {
-            var builder = new ModelSetBuilder(version);
-            if (inputFiles.Count() == 1 && inputFiles.FirstOrDefault().EndsWith(".yaml"))
+            WheelFile wheelFile = LoadOrBuildWheelFile(carModelConfig.Wheel);
+            if (wheelFile is null)
             {
-                var file = inputFiles.FirstOrDefault();
-                builder.InitFromConfig(file);
+                Logger.Error("Failed to load/build wheel file for car model.");
+                return;
+            }
+            Logger.Info($"[Step 3/6] Wheel file loaded - {wheelFile.ModelSet.Shapes.Count} shapes...");
+
+            Logger.Info("");
+            Logger.Info($"[Step 4/6] Loading tire file '{carModelConfig.Tire}'...");
+
+            TireFile tireFile = LoadOrBuildTireFile(carModelConfig.Tire);
+            if (tireFile is null)
+            {
+                Logger.Error("Failed to load/build tire file for car model.");
+                return;
+            }
+            Logger.Info($"[Step 4/6] Tire file loaded");
+
+            Logger.Info("");
+            Logger.Info($"[Step 5/6] Loading car info '{carModelConfig.CarInfo}'...");
+
+            CarInfo info;
+            if (Path.GetExtension(carModelConfig.CarInfo) == ".json")
+            {
+                string carInfoJson = File.ReadAllText(carModelConfig.CarInfo);
+                info = CarInfo.FromJson(carInfoJson);
+
+                Logger.Info("[Step 5/6] Car info loaded (.json)");
             }
             else
             {
-                foreach (string objFile in inputFiles)
-                {
-                    Logger.Info($"Adding '{objFile}' as new model..");
+                using var infoStream = File.OpenRead(carModelConfig.CarInfo);
+                info = new CarInfo();
+                info.FromStream(infoStream);
 
-                    var conf = new ModelConfig()
-                    {
-                        LODs = new Dictionary<string, LODConfig>()
-                        {
-                            { objFile, new LODConfig() }
-                        }
-                    };
-                    builder.AddModel(conf);
-                }
+                Logger.Info("[Step 5/6] Car info loaded (raw binary)");
             }
 
-            ModelSetPS2Base modelSet = builder.Build();
-
-            if (string.IsNullOrEmpty(outputPath))
+            var carModel = new CarModel1
             {
-                var first = inputFiles.FirstOrDefault();
-                string dir = Path.GetDirectoryName(first);
-                string name = Path.GetFileNameWithoutExtension(first);
+                ModelSet = mainModel,
+                Wheel = wheelFile,
+                Tire = tireFile,
+                CarInfo = info
+            };
 
-                outputPath = Path.Combine(dir, name + ".mdl");
-            }
+            Logger.Info("");
+            Logger.Info("[Step 6/6] All loaded. Serializing...");
 
-            Logger.Info($"Serializing ModelSet to '{outputPath}'...");
+            if (string.IsNullOrEmpty(makeCarModelVerbs.OutputPath))
+                makeCarModelVerbs.OutputPath = Path.Combine(Path.GetDirectoryName(makeCarModelVerbs.InputFile), Path.GetFileNameWithoutExtension(makeCarModelVerbs.InputFile) + "_build");
 
-            if (modelSet is ModelSet1 modelSet1)
-            {
-                using var fs = new FileStream(outputPath, FileMode.Create);
-                var serializer = new ModelSet1Serializer(modelSet1);
-                serializer.Write(fs);
+            string outputDir = Path.GetDirectoryName(makeCarModelVerbs.OutputPath);
+            if (!string.IsNullOrEmpty(outputDir))
+                Directory.CreateDirectory(outputDir);
 
-                Logger.Info($"Serialized ModelSet1. Size: {fs.Length} bytes (0x{fs.Length:X8})");
-            }
-            else if (modelSet is ModelSet2 modelSet2)
-            {
-                using var fs = new FileStream(outputPath, FileMode.Create);
-                var serializer = new ModelSet2Serializer(modelSet2);
-                serializer.Write(fs);
+            using var output = new FileStream(makeCarModelVerbs.OutputPath, FileMode.Create);
+            carModel.Write(output);
 
-                Logger.Info($"Serialized ModelSet2. Size: {fs.Length} bytes (0x{fs.Length:X8})");
-            }
+            Logger.Info($"Created car model file at '{makeCarModelVerbs.OutputPath}'.");
+            Logger.Info($"Size: 0x{output.Length:X8} ({output.Length} bytes)");
 
-            Logger.Info("Done.");
+            if (mainModel.TextureSets[0].TotalBlockSize >= 0x2A0)
+                Logger.Warn("LOD0's Texture Set block size is larger than any original GT3 car model ({size:X8}). Try to make some texture size optimizations.", mainModel.TextureSets[0].TotalBlockSize);
 
-            DumpFile(outputPath);
-        }
-
-        static void MakeModelSet1(MakeModelSet1Verbs makeVerbs)
-        {
-            Logger.Info("Create ModelSet (MDL1) task started.");
-
-            MakeModelSet(ModelSetBuildVersion.ModelSet1, makeVerbs.InputFiles, makeVerbs.OutputPath);
-        }
-
-        /*
-        static void MakeModelSet2(MakeModelSet2Verbs makeVerbs)
-        {
-            Logger.Info("Create ModelSet2 (MDLS) task started.");
-
-            MakeModelSet(ModelSetBuildVersion.ModelSet2, makeVerbs.InputFiles, makeVerbs.OutputPath);
-        }
-        */
-
-        static void MakeTireFile(MakeTireVerbs makeTire)
-        {
-            Logger.Info("Create tire file task started.");
-
-            if (!File.Exists(makeTire.InputFile))
-            {
-                Logger.Error("Input file does not exist.");
-                return;
-            }
-
-            try
-            {
-                Logger.Info("Loading texture file for tire...");
-
-                var file = new FileStream(makeTire.InputFile, FileMode.Open);
-                var textureSet = new TextureSet1();
-                textureSet.FromStream(file);
-
-                var tileFile = new TireFile();
-                tileFile.TextureSet = textureSet;
-
-                using var output = new FileStream(makeTire.OutputPath, FileMode.Create);
-                tileFile.Write(output);
-
-                Logger.Info($"Created tire file at '{makeTire.OutputPath}'.");
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Failed to make tire file");
-            }
-        }
-
-        static void MakeWheelFile(MakeWheelVerbs makeWheel)
-        {
-            Logger.Info("Create wheel file task started.");
-
-            if (!File.Exists(makeWheel.InputFile))
-            {
-                Logger.Error("Input file does not exist.");
-                return;
-            }
-
-            try
-            {
-                Logger.Info("Loading model file for wheel...");
-
-                using var file = new FileStream(makeWheel.InputFile, FileMode.Open);
-                var modelSet = new ModelSet1();
-                modelSet.FromStream(file);
-
-                var wheelFile = new WheelFile();
-                wheelFile.ModelSet = modelSet;
-
-                using var output = new FileStream(makeWheel.OutputPath, FileMode.Create);
-                wheelFile.Write(output);
-
-                Logger.Info($"Created wheel file at '{makeWheel.OutputPath}'.");
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Failed to make wheel file");
-            }
-        }
-
-        static void MakeCarModelFile(MakeCarModelVerbs makeCarModelVerbs)
-        {
-            Logger.Info("Create car model file task started.");
-
-            if (!File.Exists(makeCarModelVerbs.ModelSet))
-            {
-                Logger.Error("Input model set file does not exist.");
-                return;
-            }
-
-            if (!File.Exists(makeCarModelVerbs.CarInfo))
-            {
-                Logger.Error("Input car info file does not exist.");
-                return;
-            }
-
-            if (!File.Exists(makeCarModelVerbs.Wheel))
-            {
-                Logger.Error("Input wheel file does not exist.");
-                return;
-            }
-
-            if (!File.Exists(makeCarModelVerbs.Tire))
-            {
-                Logger.Error("Input tire file does not exist.");
-                return;
-            }
-
-            try
-            {
-                Logger.Info($"Loading model set file '{makeCarModelVerbs.ModelSet}'...");
-                using var file = new FileStream(makeCarModelVerbs.ModelSet, FileMode.Open);
-                var mainModel = new ModelSet1();
-                mainModel.FromStream(file);
-                Logger.Info($"Model set loaded - {mainModel.Models.Count} models, {mainModel.Shapes.Count} shapes, {mainModel.Materials.Count} materials, {mainModel.TextureSets.Count} texture sets");
-
-                Logger.Info($"Loading wheel file '{makeCarModelVerbs.Wheel}'...");
-                using var wheelFileStream = new FileStream(makeCarModelVerbs.Wheel, FileMode.Open);
-                var wheelFile = new WheelFile();
-                wheelFile.FromStream(wheelFileStream);
-                Logger.Info($"Wheel file loaded - {wheelFile.ModelSet.Shapes.Count} shapes...");
-
-                Logger.Info($"Loading tire file '{makeCarModelVerbs.Tire}'...");
-                using var tireFileStream = new FileStream(makeCarModelVerbs.Tire, FileMode.Open);
-                var tireFile = new TireFile();
-                tireFile.FromStream(tireFileStream);
-                Logger.Info($"Tire file loaded");
-
-                Logger.Info($"Loading car info '{makeCarModelVerbs.CarInfo}'...");
-                string carInfoJson = File.ReadAllText(makeCarModelVerbs.CarInfo);
-                CarInfo info = CarInfo.FromJson(carInfoJson);
-                Logger.Info("Car info loaded");
-
-                var carModel = new CarModel1();
-                carModel.ModelSet = mainModel;
-                carModel.Wheel = wheelFile;
-                carModel.Tire = tireFile;
-                carModel.CarInfo = info;
-
-                Logger.Info("All loaded. Serializing...");
-
-                string dir = Path.GetDirectoryName(makeCarModelVerbs.OutputPath);
-                if (!string.IsNullOrEmpty(dir))
-                    Directory.CreateDirectory(dir);
-
-                using var output = new FileStream(makeCarModelVerbs.OutputPath, FileMode.Create);
-                carModel.Write(output);
-
-                Logger.Info($"Created car model file at '{makeCarModelVerbs.OutputPath}'.");
-                Logger.Info($"Size: 0x{output.Length:X8} ({output.Length} bytes)");
-
-                if (output.Length > CarModel1.MaxSizeMenu)
-                    Logger.Warn($"Model file is larger than maximum menu model size (0x{CarModel1.MaxSizeMenu:X8})");
-                else if (output.Length > CarModel1.MaxSizeRace)
-                    Logger.Warn($"Model file is larger than maximum race model size (0x{CarModel1.MaxSizeRace:X8})");
-                else
-                    Logger.Info("Size is OK");
-
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Failed to make car model file");
-            }
-        }
-
-        static void SplitCarModel(SplitCarModelVerbs splitVerbs)
-        {
-            if (string.IsNullOrEmpty(splitVerbs.InputFile) || !File.Exists(splitVerbs.InputFile))
-            {
-                Logger.Error("Input car model file does not exist.");
-                return;
-            }
-
-            using var fs = new FileStream(splitVerbs.InputFile, FileMode.Open);
-
-            var mod = new CarModel1();
-            mod.FromStream(fs);
-
-            var serializer = new SerializerBuilder()
-                .WithNamingConvention(PascalCaseNamingConvention.Instance)
-                .Build();
-
-            string js = mod.CarInfo.AsJson();
-
-            fs.Position = 0;
-
-            string dir = Path.GetDirectoryName(splitVerbs.InputFile);
-            string fileName = Path.GetFileNameWithoutExtension(splitVerbs.InputFile);
-            string outputDir = Path.Combine(dir, $"{fileName}_split");
-
-            CarModel1.Split(fs, outputDir);
-
-            File.WriteAllText(Path.Combine(outputDir, "car_info.json"), js);
-        }
-
-        static void Dump(DumpVerbs dumpVerbs)
-        {
-            if (Directory.Exists(dumpVerbs.InputFile))
-            {
-                foreach (var file in Directory.GetFiles(dumpVerbs.InputFile, "*", SearchOption.AllDirectories))
-                {
-                    try
-                    {
-                        Console.WriteLine($"Processing: {file}");
-                        DumpFile(file);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Skipped: {file} - {e.Message}");
-                    }
-                }
-            }
+            if (output.Length > CarModel1.MaxSizeMenu)
+                Logger.Warn($"Model file is larger than maximum menu model size (0x{CarModel1.MaxSizeMenu:X8})");
+            else if (output.Length > CarModel1.MaxSizeRace)
+                Logger.Warn($"Model file is larger than maximum race model size (0x{CarModel1.MaxSizeRace:X8})");
             else
-            {
-                DumpFile(dumpVerbs.InputFile);
-            }
+                Logger.Info("Size is OK!");
+
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Failed to make car model file");
+        }
+    }
+
+    /// <summary>
+    /// Loads or builds a model set from the specified path.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    private static ModelSet1 LoadOrBuildModelSet(string path)
+    {
+        ModelSet1 mainModel;
+        if (Path.GetExtension(path) == ".yaml")
+        {
+            Logger.Info($"Building model set '{path}'...");
+            var builder = new ModelSetBuilder(ModelSetBuildVersion.ModelSet1);
+            if (!builder.InitFromConfig(path))
+                return null;
+
+            mainModel = (ModelSet1)builder.Build();
+        }
+        else
+        {
+            Logger.Info($"Loading raw/binary model set '{path}'...");
+
+            using var file = new FileStream(path, FileMode.Open);
+            mainModel = new ModelSet1();
+            mainModel.FromStream(file);
         }
 
-        static void DumpFile(string path)
+        return mainModel;
+    }
+
+    private static WheelFile LoadOrBuildWheelFile(string path)
+    {
+        WheelFile wheelFile;
+        if (Path.GetExtension(path) == ".yaml")
         {
-            using var fs = new FileStream(path, FileMode.Open);
-            using var bs = new BinaryReader(fs);
+            Logger.Info($"Building wheel file '{path}'...");
+            wheelFile = BuildWheelFile(path);
+        }
+        else
+        {
+            Logger.Info($"Loading raw/binary wheel file '{path}'...");
 
-            uint magic = bs.ReadUInt32();
-            if (magic == 0x34524143) // CAR4
-            {
-                bs.BaseStream.Position = 0x18;
-                uint modelSetOffset = bs.ReadUInt32();
-                bs.BaseStream.Position = modelSetOffset;
-
-                var modelSet = new ModelSet2();
-                modelSet.FromStream(fs);
-                string name = Path.GetFileNameWithoutExtension(path);
-                string modelSetOutputDir = Path.Combine(Path.GetDirectoryName(path), $"{name}_dump");
-
-                DumpModelSet2(modelSet, modelSetOutputDir);
-                return;
-            }
-            else if (magic == 0x534C444D) // MDLS
-            {
-                fs.Position = 0;
-
-                var modelSet = new ModelSet2();
-                modelSet.FromStream(fs);
-
-                string name = Path.GetFileNameWithoutExtension(path);
-                string modelSetOutputDir = Path.Combine(Path.GetDirectoryName(path), $"{name}_dump");
-                DumpModelSet2(modelSet, modelSetOutputDir);
-                return;
-            }
-            else if (magic == ModelSet1.MAGIC)
-            {
-                fs.Position = 0;
-                var modelSet = new ModelSet1();
-                modelSet.FromStream(fs);
-
-                string name = Path.GetFileNameWithoutExtension(path);
-                string modelSetOutputDir = Path.Combine(Path.GetDirectoryName(path), $"{name}_dump");
-                DumpModelSet(modelSet, modelSetOutputDir);
-                return;
-            }
-            else if (magic == TireFile.MAGIC)
-            {
-                fs.Position = 0x20;
-                var texSet = new TextureSet1();
-                texSet.FromStream(fs);
-
-                string name = Path.GetFileNameWithoutExtension(path);
-                string texSetOutputDir = Path.Combine(Path.GetDirectoryName(path), $"{name}_textures");
-                DumpTextureSet(texSet, texSetOutputDir);
-                return;
-            }
-            else if (magic == WheelFile.MAGIC)
-            {
-                fs.Position = 0x20;
-                var modelSet = new ModelSet1();
-                modelSet.FromStream(fs);
-
-                string name = Path.GetFileNameWithoutExtension(path);
-                string modelSetOutputDir = Path.Combine(Path.GetDirectoryName(path), $"{name}_dump");
-                DumpModelSet(modelSet, modelSetOutputDir);
-                return;
-            }
-            else if (magic == TextureSet1.MAGIC) // Tex1
-            {
-                fs.Position = 0;
-                var texSet = new TextureSet1();
-                texSet.FromStream(fs);
-
-                string name = Path.GetFileNameWithoutExtension(path);
-                string texSetOutputDir = Path.Combine(Path.GetDirectoryName(path), $"{name}_textures");
-                DumpTextureSet(texSet, texSetOutputDir);
-                return;
-            }
-            else if (magic == 0x52425447) // GTBR
-            {
-                fs.Position = 0;
-                DumpBrakeFile(path, fs);
-                return;
-            }
-
-            // GT3 Car Model
-            fs.Position = 0x04;
-            uint possibleCarInfoOffset = bs.ReadUInt32();
-            fs.Position = (int)possibleCarInfoOffset;
-
-            magic = bs.ReadUInt32();
-            if (magic == CarInfo.MAGIC)
-            {
-                fs.Position = 0;
-
-                var carModel = new CarModel1();
-                carModel.FromStream(fs);
-                DumpCarModel1(path, carModel);
-                return;
-            }
-
-            // GT4 Crs MDLS
-            fs.Position = 0x100;
-            magic = bs.ReadUInt32();
-            if (magic == 0x534C444D)
-            {
-                fs.Position = 0x100;
-                //DumpModelSet2(path, fs);
-                return;
-            }
-
-
-            fs.Position = 0x20;
-            magic = bs.ReadUInt32();
-            if (magic == ModelSet1.MAGIC)
-            {
-                fs.Position = 0x20;
-                var modelSet = new ModelSet1();
-                modelSet.FromStream(fs);
-                DumpModelSet(modelSet, path);
-                return;
-            }
-
-            fs.Position = 0x5180;
-            magic = bs.ReadUInt32();
-            if (magic == ModelSet1.MAGIC)
-            {
-                fs.Position = 0x5180;
-                var modelSet = new ModelSet1();
-                modelSet.FromStream(fs);
-                DumpModelSet(modelSet, path);
-                return;
-            }
-
-            Console.WriteLine("Can not process this file");
+            using var wheelFileStream = new FileStream(path, FileMode.Open);
+            wheelFile = new WheelFile();
+            wheelFile.FromStream(wheelFileStream);
         }
 
-        static void DumpCarModel1(string path, CarModel1 carModel)
-        {
-            string name = Path.GetFileNameWithoutExtension(path);
-            string modelSetOutputDir = Path.Combine(Path.GetDirectoryName(path), $"{name}_dump");
+        return wheelFile;
+    }
 
-            DumpModelSet(carModel.ModelSet, Path.Combine(modelSetOutputDir, "MainModel"));
-            DumpModelSet(carModel.Wheel.ModelSet, Path.Combine(modelSetOutputDir, "Wheel"));
-            DumpTextureSet(carModel.Tire.TextureSet, Path.Combine(modelSetOutputDir, "TireTextures"));
+    private static WheelFile BuildWheelFile(string inputConfigPath)
+    {
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(NullNamingConvention.Instance)
+            .Build();
+
+        string wheelFileConfig = File.ReadAllText(inputConfigPath);
+        WheelFileConfig config = deserializer.Deserialize<WheelFileConfig>(wheelFileConfig);
+
+        string dir = Path.GetDirectoryName(Path.GetFullPath(inputConfigPath));
+        config.ModelSetPath = Path.Combine(dir, config.ModelSetPath);
+        if (!File.Exists(config.ModelSetPath))
+        {
+            Logger.Error($"Wheel model set file '{config.ModelSetPath}' referenced by config does not exist");
+            return null;
         }
 
-        static void DumpBrakeFile(string path, Stream stream)
+        var modelSet = LoadOrBuildModelSet(config.ModelSetPath);
+        if (modelSet == null)
         {
-            var br = new BinaryReader(stream);
-            stream.Position = 0x10;
-            uint texSetOffset = br.ReadUInt32();
-            stream.Position = texSetOffset;
-
-            var texSet = new TextureSet1();
-            texSet.FromStream(stream);
-
-            DumpTextureSet(texSet, path);
+            Logger.Error($"Failed to load or build model set '{config.ModelSetPath}' for wheel file.");
+            return null;
         }
 
-        static void DumpTextureSet(TextureSet1 texSet, string dir)
+        WheelFile wheelFile = new()
         {
-            texSet.Dump();
+            UnkFlags = config.UnkFlags,
+            ModelSet = modelSet,
+        };
 
-            Directory.CreateDirectory(dir);
-            for (int i = 0; i < texSet.pgluTextures.Count; i++)
+        return wheelFile;
+    }
+
+    private static TireFile LoadOrBuildTireFile(string path)
+    {
+        TireFile tireFile;
+        if (Path.GetExtension(path) == ".yaml")
+        {
+            Logger.Info($"Building tire file '{path}'...");
+            tireFile = BuildTireFile(path);
+        }
+        else
+        {
+            Logger.Info($"Loading raw/binary tire file '{path}'...");
+
+            using var tireFileStream = new FileStream(path, FileMode.Open);
+            tireFile = new TireFile();
+            tireFile.FromStream(tireFileStream);
+        }
+
+        return tireFile;
+    }
+
+    private static TireFile BuildTireFile(string inputConfigPath)
+    {
+        var deserializer = new DeserializerBuilder()
+            .WithNamingConvention(NullNamingConvention.Instance)
+            .Build();
+
+        string tireConfigFile = File.ReadAllText(inputConfigPath);
+        TireFileConfig config = deserializer.Deserialize<TireFileConfig>(tireConfigFile);
+
+        string dir = Path.GetDirectoryName(Path.GetFullPath(inputConfigPath));
+        config.TexturePath = Path.Combine(dir, config.TexturePath);
+        if (!File.Exists(config.TexturePath))
+        {
+            Logger.Error($"Tire texture file '{config.TexturePath}' referenced by config does not exist");
+            return null;
+        }
+
+        TireFile tireFile = new()
+        {
+            UnkTriStripRelated = config.UnkTriStripRelated,
+            TriStripFlags = config.TriStripFlags,
+            Unk3 = config.Unk3
+        };
+
+        var textureSetBuilder = new TextureSetBuilder();
+        textureSetBuilder.AddImage(config.TexturePath, new TextureConfig() { Format = SCE_GS_PSM.SCE_GS_PSMT4 });
+        tireFile.TextureSet = textureSetBuilder.Build();
+
+        return tireFile;
+    }
+
+    static void Dump(DumpVerbs dumpVerbs)
+    {
+        if (Directory.Exists(dumpVerbs.InputFile))
+        {
+            foreach (var file in Directory.GetFiles(dumpVerbs.InputFile, "*", SearchOption.AllDirectories))
             {
-                using var image = texSet.GetTextureImage(i);
-
-                if (texSet.pgluTextures.Count == 1)
-                    image.Save(Path.Combine(dir, Path.GetFileNameWithoutExtension(dir) + ".png"));
-                else
+                try
                 {
-
-                    image.Save(Path.Combine(dir, $"{i}.png"));
+                    Console.WriteLine($"Processing: {file}");
+                    Dumper.DumpFile(file);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Skipped: {file} - {e.Message}");
                 }
             }
         }
-
-        static void DumpModelSet(ModelSet1 modelSet, string dir)
+        else
         {
-            string textureOutputDir = Path.Combine(dir, "Textures");
-            Directory.CreateDirectory(textureOutputDir);
-
-            for (int i = 0; i < modelSet.TextureSets.Count; i++)
-            {
-                TextureSet1 texSet = modelSet.TextureSets[i];
-                for (int k = 0; k < texSet.pgluTextures.Count; k++)
-                {
-                    try
-                    {
-                        using var image = texSet.GetTextureImage(k);
-                        image.Save(Path.Combine(textureOutputDir, $"{i}.{k}.png"));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Skipped {k} - {e.Message}");
-                    }
-                }
-            }
-
-            for (int i = 0; i < modelSet.Models.Count; i++)
-            {
-                modelSet.DumpModel(i, dir);
-            }
-
-            string shapeOutputDir = Path.Combine(dir, "Shapes");
-            Directory.CreateDirectory(shapeOutputDir);
-
-            for (int i = 0; i < modelSet.Shapes.Count; i++)
-            {
-                PGLUshape shape = modelSet.Shapes[i];
-                PGLUshapeConverted data = shape.GetShapeData();
-
-                using var objWriter = new StreamWriter(Path.Combine(shapeOutputDir, $"{i}.obj"));
-                using var mtlWriter = new StreamWriter(Path.Combine(shapeOutputDir, $"{i}.mtl"));
-
-                data.Dump(objWriter, mtlWriter, 0, 0, 0);
-            }
-        }
-
-        static void DumpModelSet2(ModelSet2 modelSet, string dir)
-        {
-            string textureOutputDir = Path.Combine(dir, "Textures");
-            Directory.CreateDirectory(textureOutputDir);
-            Directory.CreateDirectory(textureOutputDir);
-
-            for (int i = 0; i < modelSet.TextureSetLists[0].Count; i++)
-            {
-                TextureSet1 texSet = modelSet.TextureSetLists[0][i];
-                for (int k = 0; k < texSet.pgluTextures.Count; k++)
-                {
-                    try
-                    {
-                        using var image = texSet.GetTextureImage(k);
-                        image.Save(Path.Combine(textureOutputDir, $"{i}.{k}.png"));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"Skipped {k} - {e.Message}");
-                    }
-                }
-            }
-
-            for (int i = 0; i < modelSet.Models.Count; i++)
-            {
-                modelSet.DumpModel(i, dir);
-            }
-
-            string shapeOutputDir = Path.Combine(dir, "Shapes");
-            Directory.CreateDirectory(shapeOutputDir);
-
-            for (int i = 0; i < modelSet.Shapes.Count; i++)
-            {
-                PGLUshape shape = modelSet.Shapes[i];
-                PGLUshapeConverted data = shape.GetShapeData();
-
-                using var objWriter = new StreamWriter(Path.Combine(shapeOutputDir, $"{i}.obj"));
-                using var mtlWriter = new StreamWriter(Path.Combine(shapeOutputDir, $"{i}.mtl"));
-
-                data.Dump(objWriter, mtlWriter, 0, 0, 0);
-            }
-        }
-
-        [Verb("make-model-set", HelpText = "Makes a ModelSet1 (GTM1) file (GT3/GTC).")]
-        public class MakeModelSet1Verbs
-        {
-            [Option('i', "input", Required = true, HelpText = "Input model files (.obj).")]
-            public IEnumerable<string> InputFiles { get; set; }
-
-            [Option('o', "output", HelpText = "Output file. Optional, defaults to <file_name>.mdl if not provided.")]
-            public string OutputPath { get; set; }
-        }
-
-        /*
-        [Verb("make-model-set2", HelpText = "Makes a ModelSet2 (MDLS) file (GT4/TT).")]
-        public class MakeModelSet2Verbs
-        {
-            [Option('i', "input", Required = true, HelpText = "Input model files (.obj).")]
-            public IEnumerable<string> InputFiles { get; set; }
-
-            [Option('o', "output", HelpText = "Output file. Optional, defaults to <file_name>.mdl if not provided.")]
-            public string OutputPath { get; set; }
-        }*/
-
-        [Verb("make-tire", HelpText = "Makes a tire (GTTR) file.")]
-        public class MakeTireVerbs
-        {
-            [Option('i', "input", Required = true, HelpText = "Input texture set file.")]
-            public string InputFile { get; set; }
-
-            [Option('o', "output", Required = true, HelpText = "Output file.")]
-            public string OutputPath { get; set; }
-        }
-
-        [Verb("make-wheel", HelpText = "Makes a wheel (GTTW) file.")]
-        public class MakeWheelVerbs
-        {
-            [Option('i', "input", Required = true, HelpText = "Input model (GTM1) file.")]
-            public string InputFile { get; set; }
-
-            [Option('o', "output", Required = true, HelpText = "Output file.")]
-            public string OutputPath { get; set; }
-        }
-
-        [Verb("make-car-model", HelpText = "Makes a car model file (GT3).")]
-        public class MakeCarModelVerbs
-        {
-            [Option("model", Required = true, HelpText = "Input model set file (GTM1).")]
-            public string ModelSet { get; set; }
-
-            [Option("car-info", Required = true, HelpText = "Input car info json file (json). (you can get one from splitting an original car model)")]
-            public string CarInfo { get; set; }
-
-            [Option("tire", Required = true, HelpText = "Input tire file (GTTR).")]
-            public string Tire { get; set; }
-
-            [Option("wheel", Required = true, HelpText = "Input wheel file (GTTW).")]
-            public string Wheel { get; set; }
-
-            [Option('o', "output", Required = true, HelpText = "Output car model file.")]
-            public string OutputPath { get; set; }
-        }
-
-        [Verb("dump", HelpText = "Dumps files into standard formats. Supported: Tex1, GTTR, GTTW, GTM1, CAR4, MDLS, PRM0, PRZ0, GTBR")]
-        public class DumpVerbs
-        {
-            [Option('i', "input", Required = true, HelpText = "Input file. Supported: Tex1, GTTR, GTTW, GTM1, CAR4, MDLS, PRM0, PRZ0, GTBR")]
-            public string InputFile { get; set; }
-        }
-
-        [Verb("split-car-model", HelpText = "Splits a car model file into multiple files.")]
-        public class SplitCarModelVerbs
-        {
-            [Option('i', "input", Required = true, HelpText = "Input car model file.")]
-            public string InputFile { get; set; }
+            Dumper.DumpFile(dumpVerbs.InputFile);
         }
     }
 }
