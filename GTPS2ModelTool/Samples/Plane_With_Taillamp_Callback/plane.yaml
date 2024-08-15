@@ -1,3 +1,11 @@
+#############################################################
+# This sample builds a model set with a simple plane.
+# The plane changes when braking (using taillamp callbacks).
+#
+# Command to run:
+# GTPS2ModelTool.exe make-model-set -i plane.yaml
+#############################################################
+
 Models:
   # Model name, can be anything really
   MyPlaneModel:
@@ -43,5 +51,3 @@ Models:
             - Brake_Off # Use shape 'Brake_Off'
           On:
             - Brake_On  # Use shape 'Brake_On'
-            
-      plane2.obj: # LOD1

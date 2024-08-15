@@ -1,3 +1,10 @@
+#############################################################
+# This sample builds a model set with a reflective sphere.
+#
+# Command to run:
+# GTPS2ModelTool.exe make-model-set -i plane.yaml
+#############################################################
+
 Models:
   # Model name, can be anything really
   SphereModel:

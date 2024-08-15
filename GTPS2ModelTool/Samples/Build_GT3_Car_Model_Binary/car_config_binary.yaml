@@ -1,0 +1,12 @@
+#############################################################
+# This sample builds a model from specified raw files that have already been built.
+# You can get a similar template by dumping any GT3 car model.
+#
+# Command to run:
+# GTPS2ModelTool.exe make-car-model -i car_config_binary.yaml
+#############################################################
+
+CarInfo: car_info.bin
+CarModelSet: car_model_set.mdl
+Tire: tire.bin
+Wheel: wheel.bin

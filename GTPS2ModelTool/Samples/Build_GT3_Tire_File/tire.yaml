@@ -1,0 +1,16 @@
+#############################################################
+# This sample simply builds a tire file if you have to.
+# You normally shouldn't need to, as building a car model config can take a yaml tire file.
+#
+# You can get a similar template by dumping any GT3 car model.
+#
+# Command to run:
+# GTPS2ModelTool.exe make-tire_file -i tire.yaml
+#############################################################
+
+UnkTriStripRelated: 2
+TriStripFlags: 0
+Unk3: 8
+
+# Should be a 128x64 file. Will be using PSMT4 (4bpp with 16 color palette)
+TexturePath: Tire.png
