@@ -242,7 +242,7 @@ public class TriStriper
         for (int i = 0; i < TempPrimativeGroup.Length; i++)
         {
             var TempIndiceTristrip = new IndiceTristrip();
-            TempIndiceTristrip.Indices = new List<int>();
+            TempIndiceTristrip.Indices = [];
 
             for (int a = 0; a < TempPrimativeGroup[i].Indices.Length; a++)
             {

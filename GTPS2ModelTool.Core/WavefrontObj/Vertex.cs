@@ -10,6 +10,6 @@ namespace GTPS2ModelTool.Core.WavefrontObj
     public struct Vertex
     {
         public Vector3 Position { get; set; }
-        public Vector3? Color { get; set; }
+        public Vector4? Color { get; set; }
     }
 }

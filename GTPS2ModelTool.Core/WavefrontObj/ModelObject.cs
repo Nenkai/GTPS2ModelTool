@@ -97,7 +97,7 @@ public class ModelObject
 
                 Vertex vert = new Vertex();
                 Vector3 position = new Vector3();
-                Vector3 color = default;
+                Vector4 color = default;
 
                 int cnt = 0;
                 for (int j = 0; j < splitLine.Length; j++)
@@ -127,6 +127,11 @@ public class ModelObject
                     else if (cnt == 5)
                     {
                         color.Z = value;
+                        vert.Color = color;
+                    }
+                    else if (cnt == 6)
+                    {
+                        color.W = value;
                         vert.Color = color;
                     }
                     else

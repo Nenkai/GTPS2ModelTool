@@ -18,28 +18,24 @@ public class MeshConfig
     /// </summary>
     public bool UseExternalTexture { get; set; }
 
+    public bool UseUnknownShadowFlag { get; set; }
+
     /// <summary>
     /// Commands to run before the shape is called/rendered.
     /// </summary>
-    public List<string> CommandsBefore { get; set; } = [];
+    public List<string> Commands { get; set; } = [];
 
-    /// <summary>
-    /// Commands to run after the shape has been called/rendered.
-    /// </summary>
-    public List<string> CommandsAfter { get; set; } = [];
 
     public override int GetHashCode()
     {
         unchecked
         {
             int hash = 19;
-            foreach (var elem in CommandsBefore)
-                hash += elem.GetHashCode();
-
-            foreach (var elem in CommandsAfter)
+            foreach (var elem in Commands)
                 hash += elem.GetHashCode();
 
             hash += UseExternalTexture.GetHashCode();
+            hash += UseUnknownShadowFlag.GetHashCode();
             return hash;
         }
     }

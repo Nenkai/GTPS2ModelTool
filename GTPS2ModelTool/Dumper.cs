@@ -580,6 +580,8 @@ public class Dumper
                 {
                     var meshConfig = new MeshConfig();
                     meshConfig.UseExternalTexture = shape.Value.UsesExternalTexture;
+                    meshConfig.UseUnknownShadowFlag = (shape.Value.Unk1 & 4) != 0;
+
                     lodConfig.MeshParameters.Add(shape.Key, meshConfig);
 
                     foreach (var cmd in shape.Value.RenderCommands)
@@ -589,39 +591,39 @@ public class Dumper
                             case ModelSetupPS2Opcode.pglAlphaFunc:
                                 {
                                     var alphaFunc = cmd as Cmd_pglAlphaFunc;
-                                    meshConfig.CommandsBefore.Add($"AlphaFunction({alphaFunc.TST}, {alphaFunc.REF})");
+                                    meshConfig.Commands.Add($"AlphaFunction({alphaFunc.TST}, {alphaFunc.REF})");
                                 }
                                 break;
                             case ModelSetupPS2Opcode.pglDisableAlphaTest:
-                                meshConfig.CommandsBefore.Add("DisableAlphaTest");
+                                meshConfig.Commands.Add("DisableAlphaTest");
 
                                 break;
                             case ModelSetupPS2Opcode.pglColorMask:
                                 {
                                     var colorMask = cmd as Cmd_pglColorMask;
-                                    meshConfig.CommandsBefore.Add($"ColorMask(0x{colorMask.ColorMask:X8})");
+                                    meshConfig.Commands.Add($"ColorMask(0x{~colorMask.ColorMask:X8})");
                                 }
                                 break;
                             case ModelSetupPS2Opcode.pglDisableDepthMask:
-                                meshConfig.CommandsBefore.Add("DisableDepthMask");
+                                meshConfig.Commands.Add("DisableDepthMask");
                                 break;
                             case ModelSetupPS2Opcode.pglBlendFunc:
                                 {
                                     var blendFunc = cmd as Cmd_pglBlendFunc;
-                                    meshConfig.CommandsBefore.Add($"BlendFunction({blendFunc.A}, {blendFunc.B}, {blendFunc.C}, {blendFunc.D}, {blendFunc.FIX})");
+                                    meshConfig.Commands.Add($"BlendFunction({blendFunc.A}, {blendFunc.B}, {blendFunc.C}, {blendFunc.D}, {blendFunc.FIX})");
                                 }
                                 break;
                             case ModelSetupPS2Opcode.pglGT3_2_4f:
                                 {
                                     var cmd_ = cmd as Cmd_GT3_2_4f;
-                                    meshConfig.CommandsBefore.Add($"UnkGT3_2_4f({cmd_.R}, {cmd_.G}, {cmd_.B}, {cmd_.A})");
+                                    meshConfig.Commands.Add($"UnkGT3_2_4f({cmd_.R}, {cmd_.G}, {cmd_.B}, {cmd_.A})");
                                 }
                                 break;
                             case ModelSetupPS2Opcode.pglEnableDestinationAlphaTest:
-                                meshConfig.CommandsBefore.Add("EnableDestinationAlphaTest");
+                                meshConfig.Commands.Add("EnableDestinationAlphaTest");
                                 break;
                             case ModelSetupPS2Opcode.pglSetDestinationAlphaFunc:
-                                meshConfig.CommandsBefore.Add($"DestinationAlphaFunc({(cmd as Cmd_pglSetDestinationAlphaFunc).Func})");
+                                meshConfig.Commands.Add($"DestinationAlphaFunc({(cmd as Cmd_pglSetDestinationAlphaFunc).Func})");
                                 break;
                             case ModelSetupPS2Opcode.pglSetFogColor:
                                 {
@@ -630,15 +632,21 @@ public class Dumper
                                     byte g = (byte)((fogColor.Color >> 8) & 0xFF);
                                     byte b = (byte)((fogColor.Color >> 16) & 0xFF);
 
-                                    meshConfig.CommandsBefore.Add($"FogColor({r}, {g}, {b})");
+                                    meshConfig.Commands.Add($"FogColor({r}, {g}, {b})");
                                 }
                                 break;
+                            case ModelSetupPS2Opcode.pglExternalTexIndex:
+                                {
+                                    meshConfig.Commands.Add($"ExternalTextureIndex({(cmd as Cmd_pgluSetExternalTexIndex).TexIndex})");
+                                    break;
+
+                                }
                             default:
                                 throw new NotSupportedException();
                         }
                     }
 
-                    meshConfig.CommandsBefore.Sort();
+                    meshConfig.Commands.Sort();
                 }
 
                 foreach (var cb in lod.Callbacks)
@@ -646,12 +654,15 @@ public class Dumper
                     switch (cb.Key)
                     {
                         case ModelCallbackParameter.IsTailLampActive:
+                            if (cb.Value.Count >= 1)
                             for (int i = 0; i < cb.Value[0].Count; i++)
                                 lodConfig.TailLampCallback.Off.Add(cb.Value[0][i]);
 
-                            for (int i = 0; i < cb.Value[1].Count; i++)
-                                lodConfig.TailLampCallback.On.Add(cb.Value[1][i]);
-
+                            if (cb.Value.Count >= 2)
+                            {
+                                for (int i = 0; i < cb.Value[1].Count; i++)
+                                    lodConfig.TailLampCallback.On.Add(cb.Value[1][i]);
+                            }
                             break;
                     }
                 }

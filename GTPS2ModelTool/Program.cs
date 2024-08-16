@@ -12,7 +12,6 @@ using PDTools.Files.Textures.PS2.GSPixelFormats;
 
 using GTPS2ModelTool.Core;
 using GTPS2ModelTool.Core.Config;
-using System.Formats.Tar;
 
 namespace GTPS2ModelTool;
 
@@ -20,7 +19,7 @@ internal class Program
 {
     private static Logger Logger = LogManager.GetCurrentClassLogger();
 
-    public const string Version = "1.0.2";
+    public const string Version = "1.1.0";
 
     static void Main(string[] args)
     {
@@ -38,12 +37,80 @@ internal class Program
             return;
         }
 
-        var p = Parser.Default.ParseArguments<MakeCarModelVerbs, MakeModelSet1Verbs, MakeTireVerbs, MakeWheelVerbs, DumpVerbs>(args)
+        var p = Parser.Default.ParseArguments<MakeCarModelVerbs, MakeModelSet1Verbs, MakeTireVerbs, MakeWheelVerbs, MakeTexSet, DumpVerbs>(args)
             .WithParsed<MakeCarModelVerbs>(MakeCarModelFile)
             .WithParsed<MakeModelSet1Verbs>(MakeModelSet1)
             .WithParsed<MakeTireVerbs>(MakeTireFile)
             .WithParsed<MakeWheelVerbs>(MakeWheelFile)
+            .WithParsed<MakeTexSet>(MakeTextureSet)
             .WithParsed<DumpVerbs>(Dump);
+    }
+
+    static void MakeTextureSet(MakeTexSet verbs)
+    {
+        if (!File.Exists(verbs.InputFile))
+        {
+            Logger.Error("Input file does not exist.");
+            return;
+        }
+
+        SCE_GS_PSM format = verbs.Format switch
+        {
+            "PSMT8" => SCE_GS_PSM.SCE_GS_PSMT8,
+            "PSMT4" => SCE_GS_PSM.SCE_GS_PSMT4,
+            "PSMCT32" => SCE_GS_PSM.SCE_GS_PSMCT32,
+            _ => throw new ArgumentException($"Format '{verbs.Format}' not supported."),
+        };
+
+        Logger.Info("Creating texture set ({format})", format);
+
+        try
+        {
+            var textureSetBuilder = new TextureSetBuilder();
+            if (Directory.Exists(verbs.InputFile))
+            {
+                if (string.IsNullOrEmpty(verbs.OutputPath))
+                    verbs.OutputPath = Path.GetFullPath(verbs.InputFile) + "_texset.img";
+
+                foreach (var file in Directory.GetFiles(verbs.InputFile))
+                {
+                    Logger.Info("Adding {file}...", file);
+                    textureSetBuilder.AddImage(file, new TextureConfig() { Format = format });
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(verbs.OutputPath))
+                {
+                    string dir = Path.GetDirectoryName(verbs.InputFile);
+                    string name = Path.GetFileNameWithoutExtension(verbs.InputFile);
+
+                    verbs.OutputPath = Path.Combine(dir, name + ".img");
+                }
+                else
+                {
+                    string dir = Path.GetDirectoryName(verbs.InputFile);
+                    Directory.CreateDirectory(dir);
+                }
+
+                Logger.Info("Adding {file}...", verbs.InputFile);
+                textureSetBuilder.AddImage(verbs.InputFile, new TextureConfig() { Format = format });
+            }
+
+            TextureSet1 texSet1 = textureSetBuilder.Build();
+            using (var fs = new FileStream(verbs.OutputPath, FileMode.Create))
+                texSet1.Serialize(fs);
+
+            Logger.Info($"Size in GS blocks: 0x{texSet1.TotalBlockSize:X4}");
+            Logger.Info("Texture/Transfer Info:");
+            texSet1.Dump();
+
+            Logger.Info($"Done. Created texture set: {verbs.OutputPath}");
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Failed to create texture set");
+        }
     }
 
     static void MakeModelSet(ModelSetBuildVersion version, IEnumerable<string> inputFiles, string outputPath)

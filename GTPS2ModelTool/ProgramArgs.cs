@@ -59,6 +59,19 @@ public class MakeCarModelVerbs
     public string OutputPath { get; set; }
 }
 
+[Verb("make-tex-set", HelpText = "Makes a texture set.")]
+public class MakeTexSet
+{
+    [Option('i', "input", Required = true, HelpText = "Input image file or folder containing files.")]
+    public string InputFile { get; set; }
+
+    [Option('o', "output", HelpText = "Output tex set.")]
+    public string OutputPath { get; set; }
+
+    [Option('f', "format", Default = "PSMT8", HelpText = "Format. Defaults to PSMT8 (8 bits per pixel). Available: PSMT4, PSMT8, PSMCT32")]
+    public string Format { get; set; } = "PSMT8";
+}
+
 [Verb("dump", HelpText = "Dumps files into standard formats. Supported: \n" +
         "GTM0 - ModelSet0 (GT2K)\n" +
         "GTM1 - ModelSet1 (GT3P, GT3, GT4P)\n" +

@@ -165,7 +165,6 @@ public class ModelSetBuilder
                 string dir = Path.GetDirectoryName(lodObjPath);
 
                 var lodModelObj = ModelObject.LoadFromFile(lodObjPath);
-                lodModelObj.Meshes = lodModelObj.Meshes.OrderBy(e => e.Key).ToDictionary(e => e.Key, e => e.Value);
 
                 // Empty object?
                 if (varIndex > 0) // GT3 Variations work mainly through texture set clut patches
@@ -230,8 +229,9 @@ public class ModelSetBuilder
                         _currentCommandList.Add(new Cmd_pgluSetTexTable_Byte() { TexSetTableIndex = _currentLOD });
 
                     int j = 0;
-                    foreach (ModelMesh mesh in lodModelObj.Meshes.Values)
+                    foreach (KeyValuePair<string, MeshConfig> configMesh in lod.Value.MeshParameters)
                     {
+                        ModelMesh mesh = lodModelObj.Meshes[configMesh.Key];
                         LogInfo("Shape {shapeIndex}/{shapeCount}: Adding new shape {shapeName}...", j + 1, lodModelObj.Meshes.Count, mesh.Name);
                         uint shapeIndex = BuildNewShape(lodModelObj, lodConfig, mesh);
 
@@ -245,6 +245,9 @@ public class ModelSetBuilder
                     ProcessCallbacks(lodModelObj, lodConfig, shapeNameToIndex);
                     LogInfo("Added LOD{lod} with {shapeCount} shapes.", _currentLOD, lodModelObj.Meshes.Count);
                 }
+
+                // Restore render parameters (needed, as lods work using branches)
+                RestoreDefaultRenderParameters();
 
                 _currentLOD++;
             }
@@ -405,6 +408,9 @@ public class ModelSetBuilder
         LogInfo("Tri-striped mesh into {vifPacket} vif packets - {shape.NumTriangles} triangles, {shape.TotalStripVerts} strip points, unk1: {shape.Unk1}", 
             shape.VIFPackets.Count, shape.NumTriangles, shape.TotalStripVerts, shape.Unk1);
 
+        if (meshConfig?.UseUnknownShadowFlag == true)
+            shape.Unk1 |= 4;
+
         uint shapeIndex = _set.AddShape(shape);
         return shapeIndex;
     }
@@ -483,7 +489,7 @@ public class ModelSetBuilder
 
     private void ProcessTailLampCallback(ModelObject lodModelObj, LODConfig lodConfig, Dictionary<string, uint> shapeNameToIndex)
     {
-        if (lodConfig.TailLampCallback is not null)
+        if (lodConfig.TailLampCallback.Off.Count > 0 && lodConfig.TailLampCallback.On.Count > 0)
         {
             TailLampCallback tailLampCallback = lodConfig.TailLampCallback;
 
@@ -544,13 +550,16 @@ public class ModelSetBuilder
     private void AddModelShapeWithParameters(LODConfig lodConfig, ModelMesh mesh, uint shapeIndex)
     {
         lodConfig.MeshParameters.TryGetValue(mesh.Name, out MeshConfig meshConfig);
-        if (meshConfig is not null && meshConfig.CommandsBefore?.Count > 0)
+        if (meshConfig is not null && meshConfig.Commands?.Count > 0)
         {
-            var cmds = RenderCommandParser.ParseCommands(meshConfig.CommandsBefore);
+            var cmds = RenderCommandParser.ParseCommands(meshConfig.Commands);
 
             Logger.Info("Adding {meshName} commands...", mesh.Name);
 
             // Restore any of these parameters if they were set previously set and are not present for this one
+            if (!cmds.Any(e => e.Opcode == ModelSetupPS2Opcode.pglExternalTexIndex))
+                RestoreExternalTexIndex();
+
             if (!cmds.Any(e => e.Opcode == ModelSetupPS2Opcode.pglAlphaFail))
                 RestoreAlphaFail();
 
@@ -601,7 +610,7 @@ public class ModelSetBuilder
 
     private void RestoreDefaultRenderParameters()
     {
-        RestoreAlphaTest();
+        RestoreExternalTexIndex();
         RestoreAlphaFail();
         RestoreAlphaTestFunc();
         RestoreDepthBias();
@@ -610,8 +619,16 @@ public class ModelSetBuilder
         RestoreDepthMask();
         RestoreBlendFunc();
         RestoreColorMask();
+        RestoreAlphaTest();
         RestoreFogColor();
         RestoreGT3_2();
+    }
+
+    private void RestoreExternalTexIndex()
+    {
+        if (!_renderCommandContext.IsDefaultExternalTexSetIndex())
+            _currentCommandList.Add(new Cmd_pgluSetExternalTexIndex(RenderCommandContext.DEFAULT_EXTERNAL_TEX_INDEX));
+        _renderCommandContext.ExternalTexIndex = RenderCommandContext.DEFAULT_EXTERNAL_TEX_INDEX;
     }
 
     private void RestoreAlphaTest()
@@ -667,7 +684,7 @@ public class ModelSetBuilder
     private void RestoreColorMask()
     {
         if (!_renderCommandContext.IsDefaultColorMask())
-            _currentCommandList.Add(new Cmd_pglColorMask(0)); // equates to ~0
+            _currentCommandList.Add(new Cmd_pglColorMask(0)); // ~0 = 0xFFFFFFFF
         _renderCommandContext.ColorMask = RenderCommandContext.DEFAULT_COLOR_MASK;
     }
 

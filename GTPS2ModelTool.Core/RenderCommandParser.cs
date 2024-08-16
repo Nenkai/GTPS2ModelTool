@@ -22,7 +22,7 @@ public class RenderCommandParser
             string[] args = null;
 
             if (!Table.TryGetValue(commandName, out RenderCommandDescription desc))
-                throw new InvalidOperationException("Invalid command name");
+                throw new InvalidOperationException($"Invalid command name '{commandName}' - line: '{beforeCmd}'");
 
             RenderCommandArgument[] cmdArgs = new RenderCommandArgument[desc.ArgumentTypes.Length];
             if (desc.ArgumentTypes.Length > 0)
@@ -159,6 +159,11 @@ public class RenderCommandParser
             ], ParseDestinationAlphaFunction)
         },
 
+        { "ExternalTextureIndex", new(ModelSetupPS2Opcode.pglExternalTexIndex, [
+                ArgType.Byte
+            ], ParseExternalTexSetIndex)
+        },
+
         { "EnableDestinationAlphaTest", new(ModelSetupPS2Opcode.pglEnableDestinationAlphaTest, [], null)
         },
 
@@ -240,6 +245,12 @@ public class RenderCommandParser
     {
         DestinationAlphaFunction tst = args[0].GetEnum<DestinationAlphaFunction>();
         return new Cmd_pglSetDestinationAlphaFunc(tst);
+    }
+
+    private static Cmd_pgluSetExternalTexIndex ParseExternalTexSetIndex(RenderCommandDescription desc, RenderCommandArgument[] args)
+    {
+        byte val = args[0].GetByte();
+        return new Cmd_pgluSetExternalTexIndex(val);
     }
 
     private static Cmd_pglMatrixMode ParseMatrixMode(RenderCommandDescription desc, RenderCommandArgument[] args)

@@ -115,7 +115,7 @@ namespace GTPS2ModelTool.Core
                     for (int i = 0; i < chunk.Colors.Count; i++)
                     {
                         var col = chunk.Colors[i];
-                        cols[i] = (uint)((byte)(col.X * 255) | (byte)(col.Y * 255) << 8 | (byte)(col.Z * 255) << 16 | 0x80 << 24);
+                        cols[i] = (uint)((byte)(col.X * 255) | (byte)(col.Y * 255) << 8 | (byte)(col.Z * 255) << 16 | (byte)(col.W * 0x80) << 24);
                     }
 
                     VIFCommand vertexColorsCommand = MakeVertexColorsCommand(cols);
@@ -150,7 +150,7 @@ namespace GTPS2ModelTool.Core
                 shape.Unk3 = 1;
             }
             else if (hasUV)
-                shape.Unk1 = 1; // 5 also works, although no idea what it does
+                shape.Unk1 = 1; // 5 also works, although no idea what it does - vertex colors related? allows alpha?
 
             return shape;
         }

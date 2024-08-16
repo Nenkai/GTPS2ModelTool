@@ -19,7 +19,7 @@ namespace GTPS2ModelTool.Core.TriStriper
         public List<Vector3> Vertices { get; set; } = new();
         public List<Vector3> Normals { get; set; } = new();
         public List<Vector2> TextureCords { get; set; } = new();
-        public List<Vector3> Colors { get; set; } = new();
+        public List<Vector4> Colors { get; set; } = new();
 
         public int ObjMatId { get; set;  }
         public int PGLUMatId { get; set; }
