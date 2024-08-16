@@ -22,7 +22,7 @@ Models:
             # Use reflection external texture
             UseExternalTexture: true
             
-            CommandsBefore:
+            Commands:
             # This is the minimum commands required to get the shape to blend to the base shape
               - DisableAlphaTest 
               - BlendFunction(0, 2, 1, 1, 0)

@@ -27,7 +27,7 @@ Models:
             # These commands will be executed BEFORE the shape is called/rendered
             # After the shape is called, the parameters will be reset (unless the next shape uses same ones)
             # Preferably meshes should be in order of obj declaration if you are using many parameters (otherwise clogs command list & file size)
-            CommandsBefore:
+            Commands:
             # List of functions
             #  - AlphaFunction(func, 0)
             #  - AlphaFail(method)
