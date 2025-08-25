@@ -1,6 +1,6 @@
 # GTPS2ModelTool
 
-*As seen on [Lifting the Bonnet on Gran Turismo's Model Format](https://nenkai.github.io/gt-modding-hub/blog/2023/11/26/lifting-bonnet-on-gt-models/)*
+*Built from the research described at [Lifting the Bonnet on Gran Turismo's Model Format](https://nenkai.github.io/gt-modding-hub/blog/2023/11/26/lifting-bonnet-on-gt-models/)*
 
 ---
 
