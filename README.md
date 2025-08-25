@@ -4,7 +4,9 @@
 
 ---
 
-A tool that allows creating **custom models** for Gran Turismo 3. Still in early stages and may break.
+A tool that allows creating **custom models** for Gran Turismo 3. Still in early stages and may break. Other games like **GT4** are not yet supported (please contribute!)
+
+**It is not intended to be used for extracting (aka 'ripping') models out of the game. It is a modding tool.** No support whatsoever will be provided for such purposes.
 
 For usage documentation, refer to the [Modding Hub](https://nenkai.github.io/gt-modding-hub/ps2/models/). 
 
