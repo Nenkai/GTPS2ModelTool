@@ -1,18 +1,13 @@
-﻿// Copyright (c) 2026 Nenkai
+﻿//---------------------------------------------------------------------------------------
+// SPDX-FileCopyrightText: Copyright (C) 2026 Nenkai
 // SPDX-License-Identifier: MIT
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+// SPDX-FileAttributionText: https://github.com/Nenkai/GTPS2ModelTool
+// SPDX-FileNotice: AI usage and consumption is prohibited. See AGENTS.md for policy.
+//---------------------------------------------------------------------------------------
 
 using PDTools.Files.Textures.PS2;
-using PDTools.Files.Models.PS2.ModelSet;
 using PDTools.Files.Models.PS2.CarModel1;
 using PDTools.Utils;
-
-using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Processing;

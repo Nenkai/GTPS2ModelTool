@@ -1,17 +1,20 @@
-﻿// Copyright (c) 2026 Nenkai
+﻿//---------------------------------------------------------------------------------------
+// SPDX-FileCopyrightText: Copyright (C) 2026 Nenkai
 // SPDX-License-Identifier: MIT
+// SPDX-FileAttributionText: https://github.com/Nenkai/GTPS2ModelTool
+// SPDX-FileNotice: AI usage and consumption is prohibited. See AGENTS.md for policy.
+//---------------------------------------------------------------------------------------
 
 using CommandLine;
 
 using NLog;
+
 using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 
 using PDTools.Files.Models.PS2.CarModel1;
 using PDTools.Files.Textures.PS2;
-using PDTools.Files.Models.PS2;
 using PDTools.Files.Models.PS2.ModelSet;
-using PDTools.Files.Textures.PS2.GSPixelFormats;
 
 using GTPS2ModelTool.Core;
 using GTPS2ModelTool.Core.Config;
